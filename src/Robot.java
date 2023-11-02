@@ -34,19 +34,12 @@ public class Robot {
     }
 
 
-    public void isPivot(){
-        this.pivot=true;
+    public void setPivot(boolean flag){
+        this.pivot=flag;
     }
 
-    public void isNotPivot(){
-        this.pivot=false;
+    public void setMoreThanOne(boolean flag){
+        this.detectedMoreThanOne=flag;
     }
 
-    public void isMoreThanOne() {
-        this.detectedMoreThanOne=true;
-    }
-
-    public void isNotMoreThanOne() {
-        this.detectedMoreThanOne=false;
-    }
 }
