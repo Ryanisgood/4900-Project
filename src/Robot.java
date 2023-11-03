@@ -2,6 +2,7 @@ public class Robot {
     private boolean group;
     private int codeNum;//编号
     private double x_axis;
+    private double speed;
     private double y_axis;
     private boolean pivot;
     private boolean detectedMoreThanOne;
