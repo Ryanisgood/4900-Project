@@ -19,7 +19,6 @@ public class findPivot {
                 // p1 is located in the top of the circle
                 if (r.getX() == 0.0 && r.getY() == radius) {
                     p1 = r;
-                    r.setPivot(true);
                     count++;
                 }
                 //p2 is located in the lowest point of the circle
@@ -30,6 +29,7 @@ public class findPivot {
 
                 //Condition 1: only one
                 if (count == 1) {
+                    p1.setPivot(true);
                     double minDistance1 = Integer.MAX_VALUE;
                     double minDistance2 = Integer.MIN_VALUE;
 
@@ -68,6 +68,7 @@ public class findPivot {
 
                 //Condition2: two robots on the Y-axis, p1 already set to true
                 else if(count==2){
+                    p1.setPivot(true);
                     p2.setPivot(true);
                 }
 
