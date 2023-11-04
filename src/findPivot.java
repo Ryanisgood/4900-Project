@@ -1,5 +1,52 @@
 // Determine the pivot points
 public class findPivot {
+    public void findCloseRobots(Robot eachCircle[],Robot pivot){
+        double minDistance1 = Integer.MAX_VALUE;
+        double minDistance2 = Integer.MIN_VALUE;
+        double currentPositiveX=0;
+        double currentNegativeX=0;
+
+
+        //Find the two closest distances of p2
+        for (int i=0;i< eachCircle.length;i++) {
+            Robot rb =eachCircle[i];
+            if(rb.getY()<0.0){
+                //Calculate distance between each point and pivot
+                double yDistance= rb.getY()-pivot.getY();
+                double distance= Math.sqrt(Math.pow(rb.getX(),2)+Math.pow(yDistance,2));
+                double x=rb.getX();
+                // Positive side
+                if(x>0.0){
+                    if (distance<minDistance1){
+                        minDistance1 = distance;
+                        currentPositiveX=x;
+                    }
+                }
+                // Negative side
+                if(x<0.0){
+                    if (distance>minDistance2){
+                        minDistance2 = distance;
+                        currentNegativeX = x;
+
+                    }
+                }
+            }
+
+        }
+
+        //Set the robots on the two closest distance as the pivots
+        for(Robot robot: eachCircle){
+            if (robot.getX()==currentPositiveX){
+                robot.setPivot(true);
+            }else if (robot.getX()==currentNegativeX){
+                robot.setPivot(true);
+            }
+        }
+
+    }
+
+
+
     public void findPivot(Robot eachCircle[], double radius) {
         //Condition1: less than 4 robots in a circle
         if (eachCircle.length < 4) {
@@ -19,6 +66,7 @@ public class findPivot {
                 // p1 is located in the top of the circle
                 if (r.getX() == 0.0 && r.getY() == radius) {
                     p1 = r;
+
                     count++;
                 }
                 //p2 is located in the lowest point of the circle
@@ -30,40 +78,7 @@ public class findPivot {
                 //Condition 1: only one
                 if (count == 1) {
                     p1.setPivot(true);
-                    double minDistance1 = Integer.MAX_VALUE;
-                    double minDistance2 = Integer.MIN_VALUE;
-
-                    //Find the two closest distances of p2
-                    for (int i=0;i< eachCircle.length;i++) {
-                        Robot rb =eachCircle[i];
-                        if(rb.getY()<0.0){
-                            if (rb!=p1){
-                                double distance= rb.getX();
-                                // Positive side
-                                if(rb.getX()>0.0){
-                                    if (distance<minDistance1){
-                                        minDistance1 = distance;
-                                    }
-                                }
-                                // Negative side
-                                if(rb.getX()<0.0){
-                                    if (distance>minDistance2){
-                                        minDistance2 = distance;
-                                    }
-                                }
-                            }
-                        }
-
-                    }
-
-                    //Set the robots on the two closest distance as the pivots
-                    for(Robot robot: eachCircle){
-                        if (robot.getX()==minDistance1){
-                            robot.setPivot(true);
-                        }else if (robot.getX()==minDistance2){
-                            robot.setPivot(true);
-                        }
-                    }
+                    findCloseRobots(eachCircle,p2);
                 }
 
                 //Condition2: two robots on the Y-axis, p1 already set to true
@@ -74,9 +89,11 @@ public class findPivot {
 
                 //Condition3: none of robots
                 else if(count==0){
-                    //用atan2
                     //Close to p1
+                    findCloseRobots(eachCircle,p1);
 
+                    //Close to p2
+                    findCloseRobots(eachCircle,p2);
 
                 }
 
