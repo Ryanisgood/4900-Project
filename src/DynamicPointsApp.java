@@ -1,6 +1,7 @@
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -8,11 +9,11 @@ import java.util.Random;
 
 public class DynamicPointsApp extends JPanel {
    // private Map<String,List<Point>> robotsFamily;
-
-    private List<Point> gatheringRobots = new ArrayList<>();
-    private List<Point> circleRobots=new ArrayList<>();
-
+    private List<Point2D> gatheringRobots = new ArrayList<>();
+    private List<Point2D> circleRobots=new ArrayList<>();
+    private List<Robot> robotList  = new ArrayList<>();
     private final int maxPoints = 100;
+
 
     public DynamicPointsApp() {
 
@@ -27,17 +28,18 @@ public class DynamicPointsApp extends JPanel {
         pointGenerator.start();
     }
 
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
         g.setColor(Color.RED);
-        for (Point point : gatheringRobots) {
-            g.fillOval(point.x, point.y, 5, 5);
+        for (Point2D point : gatheringRobots) {
+            g.fillOval((int) point.getX(), (int) point.getY(), 5, 5);
         }
         g.setColor(Color.BLUE);
-        for (Point point:circleRobots){
-            g.fillOval(point.x,point.y,5,5);
+        for (Point2D point:circleRobots){
+            g.fillOval((int) point.getX(),(int)point.getY(),5,5);
         }
     }
 
@@ -45,20 +47,21 @@ public class DynamicPointsApp extends JPanel {
         @Override
         public void run() {
             Random random = new Random();
-
             while (gatheringRobots.size()+circleRobots.size() < maxPoints) {
-                int x = random.nextInt(getWidth());
-                int y = random.nextInt(getHeight());
-
+                double x = random.nextInt(getWidth());
+                double y = random.nextInt(getHeight());
+                int counter = 0;
+                Robot robots = new Robot(true, counter++, x, y, false, false);//initializing robots
                 if (gatheringRobots.size()<maxPoints/2){
-                    gatheringRobots.add(new Point(x, y));
+                    robots.setGroup(true);
+                    robotList.add(robots);
+                    gatheringRobots.add(robots.getLocation());
                 }
                 else {
-                    circleRobots.add(new Point(x,y));
+                    robots.setGroup(false);
+                    robotList.add(robots);
+                    circleRobots.add(robots.getLocation());
                 }
-
-
-
 
                 repaint();
 
@@ -68,14 +71,20 @@ public class DynamicPointsApp extends JPanel {
                     e.printStackTrace();
                 }
             }
-            System.out.println(circleRobots.size());
-            System.out.println(gatheringRobots.size());
+            for (Robot robot : robotList) {
+                System.out.println(robot);
+            }
+
+
         }
+
     }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             new DynamicPointsApp();
         });
     }
+
 }
