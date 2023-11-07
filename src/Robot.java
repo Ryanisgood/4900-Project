@@ -1,10 +1,12 @@
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.util.LinkedList;
 
 public class Robot {
     private boolean group;
     private int codeNum;//编号
     private double speed;
+    private LinkedList<Point2D> maps;
 
     private final Point2D.Double location;
     private boolean pivot;
@@ -16,6 +18,22 @@ public class Robot {
         this.codeNum=codeNum;
         this.pivot=p;
         this.detectedMoreThanOne=detected;
+    }
+
+    //receive a  linkedlist of all the other robots;
+    public void look(LinkedList<Robot> robots) {
+        for (Robot r : robots) {
+            maps.add(r.getLocation());
+        }
+    }
+    
+    //move the robots;
+    public void move(double x, double y){
+        location.setLocation(x, y);
+    }
+    //get the code number of the robot
+    public int getCodeNum() {
+        return codeNum;
     }
 
     @Override

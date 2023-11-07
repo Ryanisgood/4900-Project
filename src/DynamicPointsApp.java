@@ -47,10 +47,10 @@ public class DynamicPointsApp extends JPanel {
         @Override
         public void run() {
             Random random = new Random();
+            int counter = 0;
             while (gatheringRobots.size()+circleRobots.size() < maxPoints) {
                 double x = random.nextInt(getWidth());
                 double y = random.nextInt(getHeight());
-                int counter = 0;
                 Robot robots = new Robot(true, counter++, x, y, false, false);//initializing robots
                 if (gatheringRobots.size()<maxPoints/2){
                     robots.setGroup(true);
