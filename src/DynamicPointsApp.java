@@ -14,13 +14,19 @@ public class DynamicPointsApp extends JPanel {
     private List<Robot> robotList  = new ArrayList<>();
     private final int maxPoints = 100;
 
+    private static final int PREF_W = 800;
+    private static final int PREF_H = 800;
+    private static final int POINT_RADIUS = 5;
+    private static final int GRID_GAP = 50;
+
 
     public DynamicPointsApp() {
-
         JFrame frame = new JFrame("Group Points Example");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         frame.add(this);
-        frame.setSize(800, 800);
+
+        frame.setSize(PREF_W, PREF_H);
         frame.setVisible(true);
 
         // Start a thread to add random points continuously
@@ -31,16 +37,48 @@ public class DynamicPointsApp extends JPanel {
 
     @Override
     protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
 
+        super.paintComponent(g);
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        // 画中心线
+        g2d.drawLine(PREF_W / 2, 0, PREF_W / 2, PREF_H);
+        g2d.drawLine(0, PREF_H / 2, PREF_W, PREF_H / 2);
+
+        // 设置网格和坐标刻度
+        g2d.setColor(Color.LIGHT_GRAY);
+        for (int i = GRID_GAP; i < PREF_W / 2; i += GRID_GAP) {
+            g2d.drawLine(PREF_W / 2 + i, 0, PREF_W / 2 + i, PREF_H); // x正轴网格
+            g2d.drawLine(PREF_W / 2 - i, 0, PREF_W / 2 - i, PREF_H); // x负轴网格
+            g2d.drawLine(0, PREF_H / 2 + i, PREF_W, PREF_H / 2 + i); // y正轴网格
+            g2d.drawLine(0, PREF_H / 2 - i, PREF_W, PREF_H / 2 - i); // y负轴网格
+        }
+
+        // 设置坐标轴数字
+        g2d.setColor(Color.BLACK);
+        for (int i = GRID_GAP; i < PREF_W / 2; i += GRID_GAP) {
+            g2d.drawString(String.valueOf(i), PREF_W / 2 + i - 3, PREF_H / 2 + 15); // x正轴数字
+            g2d.drawString(String.valueOf(-i), PREF_W / 2 - i - 10, PREF_H / 2 + 15); // x负轴数字
+            g2d.drawString(String.valueOf(-i), PREF_W / 2 + 5, PREF_H / 2 + i + 3); // y正轴数字
+            g2d.drawString(String.valueOf(i), PREF_W / 2 + 5, PREF_H / 2 - i + 3); // y负轴数字
+        }
         g.setColor(Color.RED);
         for (Point2D point : gatheringRobots) {
-            g.fillOval((int) point.getX(), (int) point.getY(), 5, 5);
+            System.out.println(point);
+            int x = PREF_W / 2 + (int) point.getX() - POINT_RADIUS; // 调整点的x坐标
+            int y = PREF_H / 2 - (int) point.getY() - POINT_RADIUS; // 调整点的y坐标，注意y方向相反
+            g.fillOval(x,y, 5, 5);
         }
         g.setColor(Color.BLUE);
-        for (Point2D point:circleRobots){
-            g.fillOval((int) point.getX(),(int)point.getY(),5,5);
+        for (Point2D point: circleRobots){
+            int x = PREF_W / 2 + (int) point.getX() - POINT_RADIUS; // 调整点的x坐标
+            int y = PREF_H / 2 - (int) point.getY() - POINT_RADIUS; // 调整点的y坐标，注意y方向相反
+            g.fillOval(x,y,5,5);
         }
+
+
+
     }
 
     private class RobotsGenerator implements Runnable {
@@ -49,10 +87,11 @@ public class DynamicPointsApp extends JPanel {
             Random random = new Random();
             int counter = 0;
             while (gatheringRobots.size()+circleRobots.size() < maxPoints) {
-                double x = random.nextInt(getWidth());
-                double y = random.nextInt(getHeight());
+
+                double x = random.nextInt(getWidth()) - 400;
+                double y = random.nextInt(getHeight()) - 400;
                 Robot robots = new Robot(true, counter++, x, y, false, false);//initializing robots
-                if (gatheringRobots.size()<maxPoints/2){
+                if (counter < maxPoints/2){
                     robots.setGroup(true);
                     robotList.add(robots);
                     gatheringRobots.add(robots.getLocation());
@@ -71,11 +110,10 @@ public class DynamicPointsApp extends JPanel {
                     e.printStackTrace();
                 }
             }
-            for (Robot robot : robotList) {
-                System.out.println(robot);
-            }
-
-
+            //测试，原点robot
+            Robot robots = new Robot(true, counter++, 0, 0, false, false);
+            gatheringRobots.add(robots.getLocation());
+            repaint();
         }
 
     }
