@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Random;
 
 public class DynamicPointsApp extends JPanel {
-   // private Map<String,List<Point>> robotsFamily;
+    // private Map<String,List<Point>> robotsFamily;
     private List<Point2D> gatheringRobots = new ArrayList<>();
     private List<Point2D> circleRobots=new ArrayList<>();
     private List<Robot> robotList  = new ArrayList<>();
@@ -123,6 +123,8 @@ public class DynamicPointsApp extends JPanel {
         SwingUtilities.invokeLater(() -> {
             new DynamicPointsApp();
         });
+
+
     }
 
 }

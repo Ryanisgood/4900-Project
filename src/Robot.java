@@ -10,14 +10,19 @@ public class Robot {
 
     private final Point2D.Double location;
     private boolean pivot;
-    private boolean detectedMoreThanOne;
+    private boolean detectedCollision;
+
+
+    private Robot[] robotsArray =new Robot[20];
+    private int size =0;
+
     public Robot(boolean group,int codeNum,double x, double y, boolean p, boolean detected){
         //boolean true => gathering; false=>formation
         this.group=group;
         location = new Point2D.Double(x, y);
         this.codeNum=codeNum;
         this.pivot=p;
-        this.detectedMoreThanOne=detected;
+        this.detectedCollision=detected;
     }
 
     //receive a  linkedlist of all the other robots;
@@ -39,8 +44,8 @@ public class Robot {
     @Override
     public String toString() {
         if(group) {
-            return ("Gathering " + codeNum + " " + location.getX() + " " + location.getY() + " " + pivot + " " + detectedMoreThanOne);
-        }else return ("Circle" + " " + codeNum + " " + location.getX() + " " + location.getY() + " " + pivot + " " + detectedMoreThanOne);
+            return ("Gathering " + codeNum + " " + location.getX() + " " + location.getY() + " " + pivot + " " + "Collision: "+detectedCollision);
+        }else return ("Circle" + " " + codeNum + " " + location.getX() + " " + location.getY() + " " + pivot + " " + "Collision: "+detectedCollision);
     }
     //Get coordinate of the x-axis
     public double getX(){
@@ -52,9 +57,9 @@ public class Robot {
         return location.getY();
     }
 
-    public boolean isPivot() {return pivot;}
-
     public boolean getGroup() {return group;}
+
+    public boolean getPivot(){return pivot;}
 
     public Point2D getLocation() { return location;};
     public void set_axis(double x,double y){
@@ -68,8 +73,14 @@ public class Robot {
     }
 
     public void setGroup(boolean group) {this.group = group;}
-    public void setMoreThanOne(boolean flag){
-        this.detectedMoreThanOne=flag;
+    public void setDetectedCollision(boolean flag){
+        this.detectedCollision=flag;
     }
 
+
+
+
+
 }
+
+

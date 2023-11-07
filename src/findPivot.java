@@ -1,6 +1,8 @@
-// Determine the pivot points
+import java.util.ArrayList;
+
+// Determine the pivot points of each circle
 public class findPivot {
-    public void findCloseRobots(Robot eachCircle[],Robot pivot){
+    public void findCloseRobots(ArrayList<Robot> robots,Robot pivot){
         double minDistance1 = Integer.MAX_VALUE;
         double minDistance2 = Integer.MIN_VALUE;
         double currentPositiveX=0;
@@ -8,8 +10,8 @@ public class findPivot {
 
 
         //Find the two closest distances of p2
-        for (int i=0;i< eachCircle.length;i++) {
-            Robot rb =eachCircle[i];
+        for (int i=0;i< robots.size();i++) {
+            Robot rb= robots.get(i);
             if(rb.getY()<0.0){
                 //Calculate distance between each point and pivot
                 double yDistance= rb.getY()-pivot.getY();
@@ -35,7 +37,7 @@ public class findPivot {
         }
 
         //Set the robots on the two closest distance as the pivots
-        for(Robot robot: eachCircle){
+        for(Robot robot: robots){
             if (robot.getX()==currentPositiveX){
                 robot.setPivot(true);
             }else if (robot.getX()==currentNegativeX){
@@ -47,10 +49,12 @@ public class findPivot {
 
 
 
-    public void findPivot(Robot eachCircle[], double radius) {
+    public void findPivot(Circle eachCircle, double radius) {
+        ArrayList<Robot> robots =new ArrayList<>(eachCircle.showRobots());
         //Condition1: less than 4 robots in a circle
-        if (eachCircle.length < 4) {
-            for (Robot r : eachCircle) {
+
+        if (robots.size() < 4) {
+            for (Robot r : robots) {
                 r.setPivot(true);
             }
         }
@@ -61,7 +65,7 @@ public class findPivot {
             int count = 0;
             Robot p1=null, p2=null;
             //Find p1 and p2
-            for (Robot r : eachCircle) {
+            for (Robot r : robots) {
                 //check if there is the robot on the p1 and p2
                 // p1 is located in the top of the circle
                 if (r.getX() == 0.0 && r.getY() == radius) {
@@ -78,7 +82,7 @@ public class findPivot {
                 //Condition 1: only one
                 if (count == 1) {
                     p1.setPivot(true);
-                    findCloseRobots(eachCircle,p2);
+                    findCloseRobots(robots,p2);
                 }
 
                 //Condition2: two robots on the Y-axis, p1 already set to true
@@ -90,10 +94,10 @@ public class findPivot {
                 //Condition3: none of robots
                 else if(count==0){
                     //Close to p1
-                    findCloseRobots(eachCircle,p1);
+                    findCloseRobots(robots,p1);
 
                     //Close to p2
-                    findCloseRobots(eachCircle,p2);
+                    findCloseRobots(robots,p2);
 
                 }
 
@@ -103,4 +107,6 @@ public class findPivot {
         }
 
     }
+
+
 }
