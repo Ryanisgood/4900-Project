@@ -39,7 +39,7 @@
 Reduce Phase:
 1. 执行条件（dense configuration）： 没有multiplicity points 并且最外层有超过四个robots
 2. move的robots一定是在non-pivotal location
-3. robots不管是哪一组，都是往里一圈走，并且距离为两圈直线距离的一半
+3. 需要移动的robots不管是哪一组，都是往里一圈走，并且距离为两圈直线距离的一半
 4. 如果robot在最内圈则向原点方向走，距离为一半 
 
 移动function要有角度的速度参数（是有时间的，因为有速度），在创建机器人时速度参数就固定了，角度参数是可变的，聚集（Gathering）机器人默认朝向圆心移动，分散（circle）机器人默认朝向圆心外移动
