@@ -29,9 +29,10 @@ public class DynamicPointsApp extends JPanel {
         frame.setSize(PREF_W, PREF_H);
         frame.setVisible(true);
 
-        // Start a thread to add random points continuously
-        Thread pointGenerator = new Thread(new RobotsGenerator());
-        pointGenerator.start();
+        RobotsGenerator robotsGenerator = new RobotsGenerator();
+        robotsGenerator.run();
+        System.out.println("move");
+
     }
 
 
@@ -40,6 +41,7 @@ public class DynamicPointsApp extends JPanel {
 
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
+        Point2D point = null;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         // 画中心线
@@ -64,25 +66,30 @@ public class DynamicPointsApp extends JPanel {
             g2d.drawString(String.valueOf(i), PREF_W / 2 + 5, PREF_H / 2 - i + 3); // y负轴数字
         }
         g.setColor(Color.RED);
-        for (Point2D point : gatheringRobots) {
-            System.out.println(point);
-            int x = PREF_W / 2 + (int) point.getX() - POINT_RADIUS; // 调整点的x坐标
-            int y = PREF_H / 2 - (int) point.getY() - POINT_RADIUS; // 调整点的y坐标，注意y方向相反
-            g.fillOval(x,y, 5, 5);
+        for (Robot robot: robotList) {
+            if(robot.getGroup()){
+                point = robot.getLocation();
+                int x = PREF_W / 2 + (int) point.getX() - POINT_RADIUS/2; // 调整点的x坐标
+                int y = PREF_H / 2 - (int) point.getY() - POINT_RADIUS/2; // 调整点的y坐标，注意y方向相反
+                g.fillOval(x,y, 5, 5);
+            }
+
         }
         g.setColor(Color.BLUE);
-        for (Point2D point: circleRobots){
-            int x = PREF_W / 2 + (int) point.getX() - POINT_RADIUS; // 调整点的x坐标
-            int y = PREF_H / 2 - (int) point.getY() - POINT_RADIUS; // 调整点的y坐标，注意y方向相反
-            g.fillOval(x,y,5,5);
+        for (Robot robot: robotList) {
+            if(!robot.getGroup()){
+                point = robot.getLocation();
+                int x = PREF_W / 2 + (int) point.getX() - POINT_RADIUS/2; // 调整点的x坐标
+                int y = PREF_H / 2 - (int) point.getY() - POINT_RADIUS/2; // 调整点的y坐标，注意y方向相反
+                g.fillOval(x,y, 5, 5);
+            }
+
         }
-
-
 
     }
 
-    private class RobotsGenerator implements Runnable {
-        @Override
+    private class RobotsGenerator {
+
         public void run() {
             Random random = new Random();
             int counter = 0;
@@ -101,29 +108,20 @@ public class DynamicPointsApp extends JPanel {
                     robotList.add(robots);
                     circleRobots.add(robots.getLocation());
                 }
-
                 repaint();
-
-                try {
-                    Thread.sleep(100); // Adjust the delay as needed
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
             }
             //测试，原点robot
-            Robot robots = new Robot(true, counter++, 0, 0, false, false);
-            gatheringRobots.add(robots.getLocation());
+            Robot robots = new Robot(true, 999, 0, 0, false, false);
+            robotList.add(robots);
             repaint();
+
         }
 
     }
 
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new DynamicPointsApp();
-        });
-
+        new DynamicPointsApp();
 
     }
 

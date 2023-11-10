@@ -5,21 +5,10 @@ public class Circle {
     private double y;*/
     private double radius;
     private ArrayList<Robot> robotsOnCircle;
-    public Circle(double x,double y, double radius){
-      /*  this.x=x;
-        this.y=y;*/
+    public Circle( double radius){
         this.radius=radius;
-
     }
 
-   /* public double getX(){
-        return x;
-    }
-
-    public double getY() {
-        return y;
-    }
-*/
     public double getRadius() {
         return radius;
     }
@@ -27,11 +16,10 @@ public class Circle {
     // add robots into the circle
     public void addRobotsToCircle(Robot robot){
         robotsOnCircle.add(robot);
-
     }
     //return robots on the circle
     public ArrayList<Robot> showRobots(){
-        return this.robotsOnCircle ;
+        return this.robotsOnCircle;
     }
 
     //return robot size on the Circle

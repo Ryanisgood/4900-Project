@@ -1,17 +1,19 @@
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class Robot {
     private boolean group;
     private int codeNum;//编号
     private double speed;
-    private LinkedList<Point2D> maps;
+    private ArrayList<Point2D> maps;
 
     private final Point2D.Double location;
     private boolean pivot;
     private boolean detectedCollision;
 
+    private boolean activated = false;
 
     private Robot[] robotsArray =new Robot[20];
     private int size =0;
@@ -25,17 +27,31 @@ public class Robot {
         this.detectedCollision=detected;
     }
 
-    //receive a  linkedlist of all the other robots;
-    public void look(LinkedList<Robot> robots) {
-        for (Robot r : robots) {
-            maps.add(r.getLocation());
+    //receive a  list of all the other robots;
+    public void look(ArrayList<Robot> robots) {
+        if(activated) {
+            for (Robot r : robots) {
+                maps.add(r.getLocation());
+            }
         }
     }
-    
+
+    public void compute() { //return destination and angle of move
+        if(activated) {
+            if (!detectedCollision) {
+                double slopeToOrgin = calSlope(0, 0);
+
+            }
+        }
+    }//
+
     //move the robots;
     public void move(double x, double y){
-        location.setLocation(x, y);
+        if(activated) {
+            location.setLocation(x, y);
+        }
     }
+
     //get the code number of the robot
     public int getCodeNum() {
         return codeNum;
@@ -62,12 +78,15 @@ public class Robot {
     public boolean getPivot(){return pivot;}
 
     public Point2D getLocation() { return location;};
-    public void set_axis(double x,double y){
-        location.setLocation(x, y);
-    }
     public double getDistanceOrigin(){ return location.distance(0,0);}
     public double getDistance(double x, double y){ return location.distance(location.getX(), location.getY(), x, y);}
-
+    public double calSlope(double x, double y){
+        if(location.getX() == x) {
+            return Double.POSITIVE_INFINITY;
+        }else{
+            return (location.getY() - y) / (location.getX() - x);
+        }
+    }
     public void setPivot(boolean flag){
         this.pivot=flag;
     }
@@ -76,6 +95,9 @@ public class Robot {
     public void setDetectedCollision(boolean flag){
         this.detectedCollision=flag;
     }
+
+    public void activate(boolean flag){ activated = flag;}
+    public boolean getStatus() {return activated;}
 
 
 
