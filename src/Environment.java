@@ -6,7 +6,7 @@ public class Environment {
     private final List<Robot> robots;
     private final List<Circle> circles;
 
-    private final Circle outside;
+    private Circle outside;
 
     private RobotSimulation.SimulationPanel panel;
 
@@ -25,6 +25,9 @@ public class Environment {
             }
         }
         this.outside = outside;
+        for(Robot robot : robots){
+            robot.setMaxcircle(outside);
+        }
     }
 
     private void initRobots() {

@@ -12,12 +12,13 @@ public class Robot extends Thread{
     private boolean isObstacle; //是否遇到障碍物
     private final Environment environment;
     private Circle circle; //所在圆圈
+    private Circle Maxcircle;
     private boolean shouldLookAndCompute = false; //是否需要观察和计算移动方向
-
     private static final int DOT_SIZE = 5; //代表机器人的圆点尺寸
     private int height = 600;
     private int width =800;
     boolean finish = false;
+
 
     public Robot(double x, double y, double speed, String group, Environment environment) {
         // 将初始位置设置为窗口中心附近
@@ -76,35 +77,52 @@ public class Robot extends Thread{
     }
     public void move(int width, int height) {
         if (!active) return; // 如果机器人处于非激活状态，则不移动
-
-        // 计算窗口中心点坐标
-        double centerX = width / 2.0;
-        double centerY = height / 2.0;
-
+        double targetX;
+        double targetY;
         // 计算目标点
-        double targetX = centerX;
-        double targetY = centerY;
+        if ("gathering".equals(group)) {
+             targetX = width / 2.0;
+             targetY = height / 2.0;
+        }else {
+            if(!isObstacle) {
+                //计算Circling group 的默认前进方向，现在有问题
+                double slope = y / x;
+                targetX = Math.sqrt(Math.pow(Maxcircle.getCircleRadius(), 2) / (1 + Math.pow(slope, 2)));
+                targetY =  -slope * targetX;
+                if (x < 0) {
+                    targetX = -targetX;
+                    targetY = -targetY;
+                }
+
+            }else {
+                targetX =0;
+                targetY =0;
+            }
+        }
 
         // 计算到目标点的距离
         double distanceToTarget = Math.hypot(targetX - x, targetY - y);
 
         // 对于蓝色机器人（聚集组），设置目标点为窗口中心
         if ("gathering".equals(group)) {
-
             angle = Math.atan2(targetY - y, targetX - x);
             if (distanceToTarget < speed) {
                 // 如果距离小于速度步长，直接移动到目标点并停止
                 x = targetX;
                 y = targetY;
-                active = false;
+                finish = true;
                 return;
             }
         } else {
-            // 分散组机器人的移动逻辑
-            // ...
-
+            angle = Math.atan2(targetY - y, targetX - x);
+            if (distanceToTarget < speed) {
+                // 如果距离小于速度步长，直接移动到目标点并停止
+                x = targetX;
+                y = targetY;
+                finish = true;
+                return;
+            }
         }
-
         // 根据角度和速度更新位置
         x += speed * Math.cos(angle);
         y += speed * Math.sin(angle);
@@ -180,5 +198,8 @@ public class Robot extends Thread{
 
     public void setFinish(boolean flag){
         finish = flag;
+    }
+    public void setMaxcircle(Circle circle){
+        Maxcircle = circle;
     }
 }
