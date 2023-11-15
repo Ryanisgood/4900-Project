@@ -29,6 +29,7 @@ public class Circle {
         robots.add(robot);
     }
 
+
     public void removeRobot(Robot robot){
         robots.remove(robot);
     }

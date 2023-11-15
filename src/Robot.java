@@ -15,15 +15,19 @@ public class Robot extends Thread{
     private Circle Maxcircle;
     private boolean shouldLookAndCompute = false; //是否需要观察和计算移动方向
     private static final int DOT_SIZE = 5; //代表机器人的圆点尺寸
+    private boolean pivot;
+    private int codeNum;
     private int height = 600;
     private int width =800;
     boolean finish = false;
 
 
-    public Robot(double x, double y, double speed, String group, Environment environment) {
+    public Robot(double x, double y, int codeNum,boolean pivot, double speed, String group, Environment environment) {
         // 将初始位置设置为窗口中心附近
         this.x = 400 + x - 200; // 假设窗口宽度为800
         this.y = 300 + y - 200; // 假设窗口高度为600
+        this.codeNum =codeNum;
+        this.pivot = pivot;
         this.speed = speed;
         this.group = group;
         this.environment = environment;
@@ -81,8 +85,8 @@ public class Robot extends Thread{
         double targetY;
         // 计算目标点
         if ("gathering".equals(group)) {
-             targetX = width / 2.0;
-             targetY = height / 2.0;
+            targetX = width / 2.0;
+            targetY = height / 2.0;
         }else {
             if(!isObstacle) {
                 //计算Circling group 的默认前进方向，现在有问题
@@ -145,7 +149,7 @@ public class Robot extends Thread{
         return Math.sqrt((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY));
 
     }
-    
+
     public void setCircle(Circle circle){
         this.circle = circle;
     }
@@ -201,5 +205,16 @@ public class Robot extends Thread{
     }
     public void setMaxcircle(Circle circle){
         Maxcircle = circle;
+    }
+
+    public void setPivot(boolean flag) {
+        this.pivot=flag;
+    }
+    public boolean getPivot(){
+        return this.pivot;
+    }
+
+    public int getCodeNum(){
+        return this.codeNum;
     }
 }

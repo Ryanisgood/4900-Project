@@ -30,13 +30,14 @@ public class Environment {
         }
     }
 
+
     private void initRobots() {
         for (int i = 0; i < 100; i++) {
             // 创建机器人并随机分配到两个组
             String group = i % 2 == 0 ? "gathering" : "circle";
             double x = Math.random() * 400;
             double y = Math.random() * 400;
-            Robot robot = new Robot(x, y, 1.0, group, this);
+            Robot robot = new Robot(x, y, i,false,1.0, group, this);
             robots.add(robot);
         }
     }
@@ -65,6 +66,7 @@ public class Environment {
                 Circle circle = new Circle(distance);
                 circles.add(circle);
                 for(Robot robot2: robots){
+                    //落在圆上的
                     if(circle.isInScope(robot2.distanceToOrigin())){
                         circle.addRobot(robot2);
                         robot2.setCircle(circle);
@@ -87,6 +89,7 @@ public class Environment {
     }
 
 
+
     public List<Robot> getRobots() {
         return robots;
     }
@@ -106,7 +109,136 @@ public class Environment {
         return maxRadius;
     }
 
+
     public void setPanel(RobotSimulation.SimulationPanel panel) {
         this.panel = panel;
+    }
+
+
+    // Calculate the closest pivot robots
+    public void findClosestPivot(double valueY,List<Robot> robotList){
+        double leftMin = Integer.MAX_VALUE;
+        double rightMin = Integer.MAX_VALUE;
+        int leftCodeNum = 0;
+        int rightCodeNum =0;
+        for(Robot robot : robotList){
+            double distance=Math.sqrt(Math.pow(robot.getX(),2) + Math.pow((valueY-robot.getY()) ,2));
+            //right side
+            if(robot.getX()>0){
+                if(distance<rightMin){
+                    rightMin = distance;
+                    rightCodeNum = robot.getCodeNum();
+
+                }
+            }
+
+            //left side
+            if(robot.getX()<0) {
+                if (distance < leftMin) {
+                    leftMin = distance;
+                    leftCodeNum = robot.getCodeNum();
+                }
+
+            }
+        }
+
+        for(Robot robot : robotList){
+            if(robot.getCodeNum()==rightCodeNum){
+                robot.setPivot(true);
+            }else if(robot.getCodeNum()==rightCodeNum){
+                robot.setPivot(true);
+            }
+        }
+
+    }
+
+    // Set pivot robots
+    public void setToPivot(List <Circle> circles){
+        Robot p1 =null;
+        Robot p2 = null;
+
+        for(int i =0 ; i< circles.size();i++){
+            Circle circle = circles.get(i);
+            int robotNumber= circle.getRobotCount();
+            List <Robot> robotList = circle.getRobots();
+            if (robotNumber<=4){
+                for(Robot robot : robotList){
+                    robot.setPivot(true);
+                }
+            }else{
+
+                for(Robot robot : robotList){
+                    //Find p1, p2
+                    if(robot.getX()==0 && robot.getY() ==  circle.getCircleRadius()){
+                        p1=robot;
+                    }else if(robot.getX()==0 && robot.getY() == - circle.getCircleRadius()) {
+                        p2 = robot;
+                    }
+                }
+
+
+
+                //Condition 1:
+                if(p2 == null){
+                    double y_axis=-circle.getCircleRadius();
+                    p1.setPivot(true);
+                    findClosestPivot(y_axis,robotList);
+
+                }
+
+                //Condition 2:
+                else if(p1!= null && p2!=null){
+                    p1.setPivot(true);
+                    p2.setPivot(true);
+                }
+
+                //Condition 3
+                else if (p1 == null && p2 ==null){
+                    double highestY = circle.getCircleRadius();
+                    double lowestY = circle.getCircleRadius();
+                    findClosestPivot(highestY,robotList);
+                    findClosestPivot(lowestY,robotList);
+
+                }
+
+            }
+
+        }
+    }
+
+    //Implement reduction phase
+    public void reductionPhase(boolean multiplicityPoint, List<Circle> circlesList){
+
+        if (multiplicityPoint){
+            if(circlesList.size()==1){
+                Circle outermost = circlesList.get(0);
+                List<Robot> robotList = outermost.getRobots();
+                if(outermost.getRobotCount()>4){
+                    for (Robot robot: robotList){
+                        if(robot.getPivot()==false){
+                            robot.move(0,0);
+                        }
+                    }
+
+                }
+            }else{
+                int lastID =circlesList.size()-1;
+                Circle outermost =circlesList.get(lastID);
+                Circle inner = circlesList.get(lastID-1);
+                List<Robot> robotList = outermost.getRobots();
+                if(outermost.getRobotCount()>4){
+                    for (Robot robot: robotList){
+                        if(robot.getPivot()==false){
+
+                            //没有写1/2 distance
+                            robot.move(,0);
+                        }
+                    }
+
+                }
+            }
+
+        }
+
     }
 }
