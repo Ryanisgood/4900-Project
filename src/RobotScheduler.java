@@ -18,7 +18,7 @@ public class RobotScheduler {
                 }
             }
         };
-        final ScheduledFuture<?> checkerHandle = scheduler.scheduleAtFixedRate(checker, 10, 1, TimeUnit.SECONDS);
+        final ScheduledFuture<?> checkerHandle = scheduler.scheduleAtFixedRate(checker, 1, 1, TimeUnit.SECONDS);
     }
 
     //检测所有机器人是否为非激活状态

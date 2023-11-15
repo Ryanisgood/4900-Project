@@ -5,7 +5,7 @@ import java.awt.*;
 public class Circle {
     private double circleRadius; // 半径
     private boolean active; // 是否激活
-    private static final int CIRCLE_SIZE = 5; //代表机器人的圆点尺寸
+    private static final int ROBOT_SIZE = 5; //代表机器人的圆点尺寸
     private List<Robot> robots; //环境中的机器人
 
     public Circle(double circleRadius) {
@@ -22,7 +22,7 @@ public class Circle {
     }
     // 在圆圈上
     public boolean isInScope(double len) {
-        return circleRadius - (CIRCLE_SIZE/2) < len && circleRadius + (CIRCLE_SIZE/2) > len;
+        return circleRadius - (ROBOT_SIZE /2) < len && circleRadius + (ROBOT_SIZE /2) > len;
     }
     
     public void addRobot(Robot robot){

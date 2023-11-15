@@ -8,6 +8,7 @@ public class RobotSimulation extends JFrame {
 
     public static final int WINDOW_WITH = 800;//初始窗口宽度
     public static final int WINDOW_HEIGHT = 600;//初始窗口高度
+    private RobotScheduler scheduler;
 
     public RobotSimulation() {
         environment = new Environment();
@@ -19,7 +20,7 @@ public class RobotSimulation extends JFrame {
         int activeThreads = Thread.activeCount();
         System.out.println("当前活动的线程数: " + activeThreads);
         //启动机器人调度器
-        RobotScheduler scheduler = new RobotScheduler(environment);
+        scheduler = new RobotScheduler(environment);
         environment.getRobots().forEach(scheduler::start);
     
     }
@@ -100,7 +101,7 @@ public class RobotSimulation extends JFrame {
 
         }
     }
-
+    
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> new RobotSimulation().setVisible(true));
     }

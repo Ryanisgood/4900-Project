@@ -76,6 +76,7 @@ public class Environment {
         for (Robot robot : robots) {
             if(robot.getGroup().equals("circle")&& outside.isInScope(robot.distanceToOrigin())){
                 robot.setActive(false);
+                robot.setFinish(true);
                 continue;
             }
             robot.move(width, height);
