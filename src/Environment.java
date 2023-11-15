@@ -67,7 +67,6 @@ public class Environment {
                         robot2.setCircle(circle);
                     }
                 }
-                System.out.println("circle:"+circle.getRobotCount());
             }
         }
     }

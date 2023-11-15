@@ -2,6 +2,7 @@ import java.util.concurrent.*;
 import java.util.List;
 public class RobotScheduler {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final Environment environment;
     private List<Robot> robots;
     public RobotScheduler(Environment environment) {
         this.environment = environment;
@@ -17,7 +18,7 @@ public class RobotScheduler {
                 }
             }
         };
-        final ScheduledFuture<?> checkerHandle = scheduler.scheduleAtFixedRate(checker, 10, 10, TimeUnit.SECONDS);
+        final ScheduledFuture<?> checkerHandle = scheduler.scheduleAtFixedRate(checker, 10, 1, TimeUnit.SECONDS);
     }
 
     //检测所有机器人是否为非激活状态

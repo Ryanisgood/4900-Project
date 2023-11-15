@@ -15,6 +15,8 @@ public class Robot extends Thread{
     private boolean shouldLookAndCompute = false; //是否需要观察和计算移动方向
 
     private static final int DOT_SIZE = 5; //代表机器人的圆点尺寸
+    private int height = 600;
+    private int width =800;
 
     public Robot(double x, double y, double speed, String group, Environment environment) {
         // 将初始位置设置为窗口中心附近
@@ -42,15 +44,18 @@ public class Robot extends Thread{
     }
 
     @Override
-    public void run() {  
+    public void run() {
         super.run();
-        if(active){
+        if (active){
             if (shouldLookAndCompute) {
                 look(); //激活时观察一次
                 compute(); //计算移动方向
                 shouldLookAndCompute = false;
+                System.out.println("1");
             }
-            move(width, height); //移动
+            while (active) {
+                move(width, height); //移动
+            }
         } else {
             shouldLookAndCompute = true;
         }
@@ -59,7 +64,6 @@ public class Robot extends Thread{
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-    }
     }
 
     public void move(int width, int height) {
