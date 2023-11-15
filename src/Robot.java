@@ -1,108 +1,168 @@
+
+
 import java.awt.*;
-import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.List;
 
-public class Robot {
-    private boolean group;
-    private int codeNum;//编号
-    private double speed;
-    private ArrayList<Point2D> maps;
+public class Robot extends Thread{
+    private double x, y; // 位置坐标
+    private final double speed; // 速度
+    private double angle; // 移动角度
+    private final String group; // 组别："gathering" 或 "circle"
+    private boolean active; // 是否激活
+    private boolean isObstacle; //是否遇到障碍物
+    private final Environment environment;
+    private Circle circle; //所在圆圈
+    private boolean shouldLookAndCompute = false; //是否需要观察和计算移动方向
 
-    private final Point2D.Double location;
-    private boolean pivot;
-    private boolean detectedCollision;
+    private static final int DOT_SIZE = 5; //代表机器人的圆点尺寸
 
-    private boolean activated = false;
-
-    private Robot[] robotsArray =new Robot[20];
-    private int size =0;
-
-    public Robot(boolean group,int codeNum,double x, double y, boolean p, boolean detected){
-        //boolean true => gathering; false=>formation
-        this.group=group;
-        location = new Point2D.Double(x, y);
-        this.codeNum=codeNum;
-        this.pivot=p;
-        this.detectedCollision=detected;
+    public Robot(double x, double y, double speed, String group, Environment environment) {
+        // 将初始位置设置为窗口中心附近
+        this.x = 400 + x - 200; // 假设窗口宽度为800
+        this.y = 300 + y - 200; // 假设窗口高度为600
+        this.speed = speed;
+        this.group = group;
+        this.environment = environment;
+        this.active = false;
+        this.circle = null;
+        this.isObstacle = false;
+    }
+    public void look(){
+        //观察所有机器人
+        List<Robot> robots = environment.getRobots();
+        //记录数据
     }
 
-    //receive a  list of all the other robots;
-    public void look(ArrayList<Robot> robots) {
-        if(activated) {
-            for (Robot r : robots) {
-                maps.add(r.getLocation());
-            }
+    public double compute(){
+        //计算移动方向
+        if (!isObstacle) {
+            return angle = Math.random() * 2 * Math.PI;
         }
-    }
-
-    public void compute() { //return destination and angle of move
-        if(activated) {
-            if (!detectedCollision) {
-                double slopeToOrgin = calSlope(0, 0);
-
-            }
-        }
-    }//
-
-    //move the robots;
-    public void move(double x, double y){
-        if(activated) {
-            location.setLocation(x, y);
-        }
-    }
-
-    //get the code number of the robot
-    public int getCodeNum() {
-        return codeNum;
+        return angle;
     }
 
     @Override
-    public String toString() {
-        if(group) {
-            return ("Gathering " + codeNum + " " + location.getX() + " " + location.getY() + " " + pivot + " " + "Collision: "+detectedCollision);
-        }else return ("Circle" + " " + codeNum + " " + location.getX() + " " + location.getY() + " " + pivot + " " + "Collision: "+detectedCollision);
-    }
-    //Get coordinate of the x-axis
-    public double getX(){
-        return location.getX();
-    }
-
-    //Get coordinate of the y-axis
-    public double getY(){
-        return location.getY();
-    }
-
-    public boolean getGroup() {return group;}
-
-    public boolean getPivot(){return pivot;}
-
-    public Point2D getLocation() { return location;};
-    public double getDistanceOrigin(){ return location.distance(0,0);}
-    public double getDistance(double x, double y){ return location.distance(location.getX(), location.getY(), x, y);}
-    public double calSlope(double x, double y){
-        if(location.getX() == x) {
-            return Double.POSITIVE_INFINITY;
-        }else{
-            return (location.getY() - y) / (location.getX() - x);
+    public void run() {  
+        super.run();
+        if(active){
+            if (shouldLookAndCompute) {
+                look(); //激活时观察一次
+                compute(); //计算移动方向
+                shouldLookAndCompute = false;
+            }
+            move(width, height); //移动
+        } else {
+            shouldLookAndCompute = true;
+        }
+        try {
+            sleep(100);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
-    public void setPivot(boolean flag){
-        this.pivot=flag;
     }
 
-    public void setGroup(boolean group) {this.group = group;}
-    public void setDetectedCollision(boolean flag){
-        this.detectedCollision=flag;
+    public void move(int width, int height) {
+        if (!active) return; // 如果机器人处于非激活状态，则不移动
+
+        // 计算窗口中心点坐标
+        double centerX = width / 2.0;
+        double centerY = height / 2.0;
+
+        // 计算目标点
+        double targetX = centerX;
+        double targetY = centerY;
+
+        // 计算到目标点的距离
+        double distanceToTarget = Math.hypot(targetX - x, targetY - y);
+
+        // 对于蓝色机器人（聚集组），设置目标点为窗口中心
+        if ("gathering".equals(group)) {
+
+            angle = Math.atan2(targetY - y, targetX - x);
+            if (distanceToTarget < speed) {
+                // 如果距离小于速度步长，直接移动到目标点并停止
+                x = targetX;
+                y = targetY;
+                active = false;
+                return;
+            }
+        } else {
+            // 分散组机器人的移动逻辑
+            // ...
+
+        }
+
+        // 根据角度和速度更新位置
+        x += speed * Math.cos(angle);
+        y += speed * Math.sin(angle);
     }
 
-    public void activate(boolean flag){ activated = flag;}
-    public boolean getStatus() {return activated;}
 
+    public void draw(Graphics g) {
+        if ("gathering".equals(group)) {
+            g.setColor(Color.BLUE);
+        } else {
+            g.setColor(Color.RED);
+        }
+        g.fillOval((int) x - (DOT_SIZE / 2), (int) y - (DOT_SIZE / 2), DOT_SIZE, DOT_SIZE); // 画一个小圆代表机器人
+    }
 
+    // 计算到原点的距离
+    public double distanceToOrigin() {
+        double centerX = RobotSimulation.WINDOW_WITH / 2.0;
+        double centerY = RobotSimulation.WINDOW_HEIGHT / 2.0;
+        return Math.sqrt((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY));
 
+    }
+    
+    public void setCircle(Circle circle){
+        this.circle = circle;
+    }
 
+    public Circle getCircle() {
+        return circle;
+    }
 
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    // 省略getter和setter方法
+
+    public double getX() {
+        return x;
+    }
+
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public void setY(double y) {
+        this.y = y;
+    }
+
+    public double getSpeed() {
+        return speed;
+    }
+
+    public double getAngle() {
+        return angle;
+    }
+
+    public void setAngle(double angle) {
+        this.angle = angle;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
 }
-
-
