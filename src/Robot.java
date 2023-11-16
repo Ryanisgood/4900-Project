@@ -42,10 +42,7 @@ public class Robot extends Thread{
     }
 
     public double compute(){
-        //计算移动方向
-        if (!isObstacle) {
-            return angle = Math.random() * 2 * Math.PI;
-        }
+       
         return angle;
     }
 
@@ -71,11 +68,7 @@ public class Robot extends Thread{
                 System.out.println("1");
             }
             move(width,height);
-            try {
-                sleep(100);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+           
         }
         shouldLookAndCompute = true;
     }
@@ -89,7 +82,7 @@ public class Robot extends Thread{
             targetY = height / 2.0;
         }else {
             if(!isObstacle) {
-                //计算Circling group 的默认前进方向，现在有问题
+                //compute the default direction angle of circling group
                 double slope = y / x;
                 targetX = Math.sqrt(Math.pow(Maxcircle.getCircleRadius(), 2) / (1 + Math.pow(slope, 2)));
                 targetY =  -slope * targetX;
@@ -118,7 +111,7 @@ public class Robot extends Thread{
                 return;
             }
         } else {
-            angle = Math.atan2(targetY - y, targetX - x);
+             angle = Math.atan2(y - height/2, x - width/2);
             if (distanceToTarget < speed) {
                 // 如果距离小于速度步长，直接移动到目标点并停止
                 x = targetX;
