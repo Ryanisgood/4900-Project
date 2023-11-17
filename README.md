@@ -55,6 +55,61 @@ Reduce Phase:
 
 
 
+***Summarize****
+
+The robot has its own coordinates, and the robot moves at the same speed: 1unit/s
+
+Designing an asynchronous robot algorithm where each robot has its own coordinate point,
+
+The algorithm starts with the robot randomly distributed in the coordinate system, having its own random coordinates
+
+The robot can be active and asleep
+
+The robot in the active state has three phases, look (look), compute (compute), move (move) three states, the robot is asynchronous action, each robot may be in the calculation, observation, or move one of the three states
+
+The robots are divided into two groups, a gathering group and a Circle group.
+
+The gathering group will be assembled at the center point (origin), and eventually all the robots in the gathering group will be at the origin (coordinate 0,0).
+
+The circle group form a circle, and eventually the coordinates of all the robots will be on this circle.
+
+There is a method to record the circle, and a method to record the robot coordinates every second, and finally the coordinates and the circle are output as a graph every second
+
+***Circle formation***
+
+1. Form a circle with the radius of a gathering group robot (never moving) farthest from the origin of the circle, which is the end point of the circle, and the robot is always asleep on this circle except for the robot in the gathering group.
+
+2, each robot forms a circle and on its own circle. The circles of all robots are concentric, and the point is the origin (0,0);
+
+3. As long as there is a robot, the circle will be on the robot; Conversely, if there is no robot on the circle, the circle will be eliminated
+
+***Gather at a central point**
+
+Robots that assemble groups (sleep automatically when they reach the center point) are never activated at the origin
+
+**Robot Activity：**
+
+Observe function to record the coordinates of all robots (instant)
+
+compute (for a moment) to avoid robot collision; (Where the algorithm is)
+
+Reduce Phase:
+
+dense configuration: there are no multiplicity points and more than 4 robots in the outermost layer；
+The move robots must be in a non-pivotal location；
+The robots that need to move, regardless of the group, walk in one circle, and the distance is half the linear distance of two circles
+If the robot is in the innermost circle, it goes in the direction of the origin, half the distance
+The speed parameter of the moving function should have an Angle (there is time, because there is speed), and the speed parameter is fixed when the robot is created, and the Angle parameter is variable. The Gathering robot moves toward the center of the circle by default, and the dispersion robot moves outside the center of the circle by default
+
+The robot's activity should be visualized (Jpanel or otherwise).
+
+**Robot activation state**
+The robot runs for a specific period of time and automatically changes to the sleep state such as 5s, then other robots start and perform the look compute move. The robot that is reactivated from the sleep state does not continue to perform the pre-sleep operation, but re-observes the computational move
+
+
+
+When the program is started, the two groups of robots automatically move to the center and outside the circle, and the program can be paused in the middle.
+
 
 
 
