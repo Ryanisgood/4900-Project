@@ -206,8 +206,7 @@ public class Environment {
         }
     }
 
-    //Implement reduction phase
-    public void reductionPhase(boolean multiplicityPoint, List<Circle> circlesList){
+     public void reductionPhase(boolean multiplicityPoint, List<Circle> circlesList){
 
         if (multiplicityPoint){
             if(circlesList.size()==1){
@@ -216,7 +215,9 @@ public class Environment {
                 if(outermost.getRobotCount()>4){
                     for (Robot robot: robotList){
                         if(robot.getPivot()==false){
-                            robot.move(0,0);
+                            robot.move(800,600);
+                            //不在圈上
+                            robotList.remove(robot);
                         }
                     }
 
@@ -229,16 +230,45 @@ public class Environment {
                 if(outermost.getRobotCount()>4){
                     for (Robot robot: robotList){
                         if(robot.getPivot()==false){
+                            //move 1/2 distance
+                            double distance = outermost.getCircleRadius()-inner.getCircleRadius();
+                            double slope = robot.getY() / robot.getX();
+                            double targetX= 0.5*Math.sqrt(Math.pow(distance, 2) / (1 + Math.pow(slope, 2)));
+                            double targetY= 0.5*( -slope * targetX);
 
-                            //没有写1/2 distance
-                            robot.move(,0);
+                            double x = robot.getX();
+                            double y =robot.getY();
+
+                            if(x< panel.getWidth()/2){
+                                x +=targetX;
+                                if(y> panel.getHeight()/2){
+                                    y -=targetY;
+                                }else{
+                                    y +=targetY;
+                                }
+                            } else if(x>panel.getWidth()/2){
+                                x -=targetX;
+                                if(y> panel.getHeight()/2){
+                                    y -=targetY;
+                                }else{
+                                    y +=targetY;
+                                }
+                            }
+
+
+
+                            robot.setX(x);
+                            robot.setY(y);
+
+                            robotList.remove(robot);
+
                         }
-                    }
 
+                    }
                 }
+
             }
 
         }
-
     }
 }
