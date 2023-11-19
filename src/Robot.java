@@ -2,8 +2,9 @@
 
 import java.awt.*;
 import java.util.List;
+import javax.swing.*;
 
-public class Robot extends Thread{
+public class Robot implements Runnable {
     private double x, y; // 位置坐标
     private final double speed; // 速度
     private double angle; // 移动角度
@@ -13,15 +14,17 @@ public class Robot extends Thread{
     private final Environment environment;
     private Circle circle; //所在圆圈
     private Circle Maxcircle;
-    private boolean shouldLookAndCompute = false; //是否需要观察和计算移动方向
+
+    private Circle innerSide;
     private static final int DOT_SIZE = 5; //代表机器人的圆点尺寸
     private boolean pivot;
     private int robotID;
     private int height = 600;
     private int width =800;
     boolean finish = false;
-
-
+    double targetX;
+    double targetY;
+    int start = 0;
     public Robot(double x, double y, int robotID,boolean pivot, double speed, String group, Environment environment) {
         // 将初始位置设置为窗口中心附近
         this.x = 400 + x - 200; // 假设窗口宽度为800
@@ -41,47 +44,20 @@ public class Robot extends Thread{
         //记录数据
     }
 
-    public double compute(){
-       
-        return angle;
-    }
-
-    @Override
-    public void run() {
-        super.run();
-        while (!finish){
-            wakeUp();
-            if (finish) {
-                this.interrupt();
-                break;
-            }
-        }
-
-    }
-
-    public void wakeUp(){
-        while (active) {
-            if (shouldLookAndCompute) {
-                look(); //激活时观察一次
-                compute(); //计算移动方向
-                shouldLookAndCompute = false;
-                System.out.println("1");
-            }
-            move(width,height);
-           
-        }
-        shouldLookAndCompute = true;
-    }
-    public void move(int width, int height) {
+    public void compute(){
+        if (circle == null) return;
         if (!active) return; // 如果机器人处于非激活状态，则不移动
-        double targetX;
-        double targetY;
+        //Formation Phrase
+        if(!circle.equals(innerSide)){return;}
+        System.out.println(innerSide.getCircleRadius());
+        System.out.println(x+"  "+y);
         // 计算目标点
         if ("gathering".equals(group)) {
             targetX = width / 2.0;
             targetY = height / 2.0;
         }else {
             if(!isObstacle) {
+                //有问题
                 //compute the default direction angle of circling group
                 double slope = y / x;
                 targetX = Math.sqrt(Math.pow(Maxcircle.getCircleRadius(), 2) / (1 + Math.pow(slope, 2)));
@@ -96,10 +72,8 @@ public class Robot extends Thread{
                 targetY =0;
             }
         }
-
         // 计算到目标点的距离
         double distanceToTarget = Math.hypot(targetX - x, targetY - y);
-
         // 对于蓝色机器人（聚集组），设置目标点为窗口中心
         if ("gathering".equals(group)) {
             angle = Math.atan2(targetY - y, targetX - x);
@@ -107,24 +81,36 @@ public class Robot extends Thread{
                 // 如果距离小于速度步长，直接移动到目标点并停止
                 x = targetX;
                 y = targetY;
-                finish = true;
-                return;
             }
         } else {
-             angle = Math.atan2(y - height/2, x - width/2);
+            angle = Math.atan2(y - height/2, x - width/2);
             if (distanceToTarget < speed) {
                 // 如果距离小于速度步长，直接移动到目标点并停止
                 x = targetX;
                 y = targetY;
-                finish = true;
-                return;
             }
         }
+        // 计算到目标点的距离
+    }
+
+    @Override
+    public void run() {
+        new Timer(10, e -> { // 减少定时器延迟以增加机器人刷新率
+            //如果激活false，则睡眠
+                look();
+                compute();
+                move();
+        }).start();
+    }
+
+    public void move() {
+        if(circle == null) return;
+        if(!circle.equals(innerSide)){return;}
+        if (!active) return; // 如果机器人处于非激活状态，则不移动
         // 根据角度和速度更新位置
         x += speed * Math.cos(angle);
         y += speed * Math.sin(angle);
     }
-
 
     public void draw(Graphics g) {
         if ("gathering".equals(group)) {
@@ -198,6 +184,7 @@ public class Robot extends Thread{
     public void setMaxcircle(Circle circle){
         Maxcircle = circle;
     }
+    public void setInnerSide(Circle circle) {innerSide = circle;}
 
     public void setPivot(boolean flag) {
         this.pivot=flag;
@@ -209,4 +196,5 @@ public class Robot extends Thread{
     public int getRobotID(){
         return this.robotID;
     }
+
 }

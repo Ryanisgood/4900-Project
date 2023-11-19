@@ -1,5 +1,6 @@
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class Environment {
@@ -8,6 +9,15 @@ public class Environment {
 
     private Circle outside;
 
+    public Circle getInnerSide() {
+        return innerSide;
+    }
+
+    public void setInnerSide(Circle innerSide) {
+        this.innerSide = innerSide;
+    }
+
+    private Circle innerSide;
     private RobotSimulation panel;
 
     public Environment(RobotSimulation panel) {
@@ -26,8 +36,29 @@ public class Environment {
             }
         }
         this.outside = outside;
+
+        circleList.sort(new Comparator<Circle>() {
+            @Override
+            public int compare(Circle circle1, Circle circle2) {
+                // Compare circles based on their radius
+                double radius1 = circle1.getCircleRadius();
+                double radius2 = circle2.getCircleRadius();
+                // Ascending order (for descending order, reverse the comparison)
+                if (radius1 < radius2) {
+                    return -1;
+                } else if (radius1 > radius2) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+        this.innerSide = circleList.get(0);
+        System.out.println(innerSide.getCircleRadius()+"121321");
         for(Robot robot : robots){
             robot.setMaxcircle(outside);
+            robot.setInnerSide(innerSide);
+            robot.setActive(true);
         }
     }
 
@@ -83,10 +114,20 @@ public class Environment {
         for (Robot robot : robots) {
             if(robot.getGroup().equals("circle")&& outside.isInScope(robot.distanceToOrigin())){
                 robot.setActive(false);
-                robot.setFinish(true);
-                continue;
+                robot.setFinish(true);;
             }
-            robot.move(width, height);
+            //只有最内圈会动时
+            /*
+            if(circleList.size()>1) {
+                Circle nextCircle = circleList.get(1);
+                if(nextCircle.isInScope(robot.distanceToOrigin())){
+                    robot.setCircle(nextCircle);
+                    circleList.remove(circleList.get(0));
+                }
+            }
+            robot.setInnerSide(circleList.get(0));
+
+             */
         }
     }
 
@@ -203,7 +244,7 @@ public class Environment {
                 if (outermost.getRobotCount() > 4) {
                     for (Robot robot : robotList) {
                         if (robot.getPivot() == false) {
-                            robot.move(800, 600);
+                            robot.move();
                             //不在圈上
                             robotList.remove(robot);
                         }

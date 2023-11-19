@@ -1,27 +1,36 @@
 
 import javax.swing.*;
 import java.awt.*;
-
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 public class RobotSimulation extends JFrame {
     private final Environment environment;
     private final SimulationPanel panel;
-
+    public ThreadPoolExecutor robotsPoolExecutor;
     public static final int WINDOW_WITH = 800;//初始窗口宽度
     public static final int WINDOW_HEIGHT = 600;//初始窗口高度
     private RobotScheduler scheduler;
 
+    private java.util.List<Robot> robots;
     public RobotSimulation() {
         environment = new Environment(this);
         panel = new SimulationPanel();
+        robots = environment.getRobots();
         initUI();
         //启动机器人
-        environment.getRobots().forEach(Robot::start);
+        robotsPoolExecutor =new ScheduledThreadPoolExecutor(100);
+        //environment.getRobots().forEach(Robot::start);
+        bootRobots();
         int activeThreads = Thread.activeCount();
         System.out.println("当前活动的线程数: " + activeThreads);
         //启动机器人调度器
-        scheduler = new RobotScheduler(environment);
-        environment.getRobots().forEach(scheduler::start);
-    
+        //scheduler = new RobotScheduler(environment);
+        //environment.getRobots().forEach(scheduler::start);
+    }
+    private void bootRobots() {
+        for (Robot robot : robots) {
+            robotsPoolExecutor.submit(robot);
+        }
     }
 
     private void initUI() {
