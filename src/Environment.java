@@ -74,6 +74,7 @@ public class Environment {
                 }
             }
         }
+        setToPivot(circles);
     }
 
     public void update(int width, int height) {
@@ -119,35 +120,31 @@ public class Environment {
     public void findClosestPivot(double valueY,List<Robot> robotList){
         double leftMin = Integer.MAX_VALUE;
         double rightMin = Integer.MAX_VALUE;
-        int leftCodeNum = 0;
-        int rightCodeNum =0;
+        Robot robotP = null;
+        Robot robotP2 = null;
         for(Robot robot : robotList){
-            double distance=Math.sqrt(Math.pow(robot.getX(),2) + Math.pow((valueY-robot.getY()) ,2));
+            double distance=Math.sqrt(Math.pow(robot.getX(),2) + Math.pow((robot.getY() - valueY) ,2));
             //right side
-            if(robot.getX()>0){
-                if(distance<rightMin){
+            if(robot.getX()> (double) panel.getWidth()/2){
+                if(distance < rightMin){
                     rightMin = distance;
-                    rightCodeNum = robot.getCodeNum();
-
+                    robotP = robot;
                 }
             }
-
             //left side
-            if(robot.getX()<0) {
+            if(robot.getX()<(double) panel.getWidth()/2) {
                 if (distance < leftMin) {
                     leftMin = distance;
-                    leftCodeNum = robot.getCodeNum();
+                    robotP2 = robot;
                 }
 
             }
         }
-
-        for(Robot robot : robotList){
-            if(robot.getCodeNum()==rightCodeNum){
-                robot.setPivot(true);
-            }else if(robot.getCodeNum()==rightCodeNum){
-                robot.setPivot(true);
-            }
+        try {
+            robotP.setPivot(true);
+            robotP2.setPivot(true);
+        }catch (NullPointerException e){
+            e.printStackTrace();
         }
 
     }
@@ -166,109 +163,103 @@ public class Environment {
                     robot.setPivot(true);
                 }
             }else{
-
                 for(Robot robot : robotList){
                     //Find p1, p2
-                    if(robot.getX()==0 && robot.getY() ==  circle.getCircleRadius()){
-                        p1=robot;
-                    }else if(robot.getX()==0 && robot.getY() == - circle.getCircleRadius()) {
-                        p2 = robot;
+                    if(robot.getX() == 0){
+                        if(robot.getY() < (double) panel.getHeight() /2){
+                            p2 = robot;
+                        }else {
+                            p1 = robot;
+                        }
                     }
                 }
-
-
-
-                //Condition 1:
-                if(p2 == null){
-                    double y_axis=-circle.getCircleRadius();
-                    p1.setPivot(true);
-                    findClosestPivot(y_axis,robotList);
-
+                //condition 1
+                if((p2 == null&&p1!=null)||(p2!=null&&p1==null)) {
+                    double y_axis;
+                    if (p1 == null) {
+                        p2.setPivot(true);
+                        y_axis = (double) panel.getHeight() / 2 + circle.getCircleRadius();
+                    } else {
+                        p1.setPivot(true);
+                        y_axis = (double) panel.getHeight() / 2 - circle.getCircleRadius();
+                    }
+                    findClosestPivot(y_axis, robotList);
                 }
-
-                //Condition 2:
-                else if(p1!= null && p2!=null){
+                //condition 2:
+                else if (p1 != null) {
                     p1.setPivot(true);
                     p2.setPivot(true);
-                }
-
                 //Condition 3
-                else if (p1 == null && p2 ==null){
-                    double highestY = circle.getCircleRadius();
-                    double lowestY = circle.getCircleRadius();
-                    findClosestPivot(highestY,robotList);
-                    findClosestPivot(lowestY,robotList);
-
+                }else{
+                    double highestY = (double) panel.getHeight() / 2 + circle.getCircleRadius();
+                    double lowestY = (double) panel.getHeight() / 2 - circle.getCircleRadius();
+                    findClosestPivot(highestY, robotList);
+                    findClosestPivot(lowestY, robotList);
                 }
+            }
 
             }
 
         }
-    }
 
-     public void reductionPhase(boolean multiplicityPoint, List<Circle> circlesList){
-
-        if (multiplicityPoint){
-            if(circlesList.size()==1){
+    //Implement reduction phase
+    public void reductionPhase(boolean multiplicityPoint, List<Circle> circlesList) {
+        if (multiplicityPoint) {
+            if (circlesList.size() == 1) {
                 Circle outermost = circlesList.get(0);
                 List<Robot> robotList = outermost.getRobots();
-                if(outermost.getRobotCount()>4){
-                    for (Robot robot: robotList){
-                        if(robot.getPivot()==false){
-                            robot.move(800,600);
+                if (outermost.getRobotCount() > 4) {
+                    for (Robot robot : robotList) {
+                        if (robot.getPivot() == false) {
+                            robot.move(800, 600);
                             //不在圈上
                             robotList.remove(robot);
                         }
                     }
-
                 }
-            }else{
-                int lastID =circlesList.size()-1;
-                Circle outermost =circlesList.get(lastID);
-                Circle inner = circlesList.get(lastID-1);
+            } else {
+                int lastID = circlesList.size() - 1;
+                Circle outermost = circlesList.get(lastID);
+                Circle inner = circlesList.get(lastID - 1);
                 List<Robot> robotList = outermost.getRobots();
-                if(outermost.getRobotCount()>4){
-                    for (Robot robot: robotList){
-                        if(robot.getPivot()==false){
+                if (outermost.getRobotCount() > 4) {
+                    for (Robot robot : robotList) {
+                        if (robot.getPivot() == false) {
                             //move 1/2 distance
-                            double distance = outermost.getCircleRadius()-inner.getCircleRadius();
+                            double distance = outermost.getCircleRadius() - inner.getCircleRadius();
                             double slope = robot.getY() / robot.getX();
-                            double targetX= 0.5*Math.sqrt(Math.pow(distance, 2) / (1 + Math.pow(slope, 2)));
-                            double targetY= 0.5*( -slope * targetX);
+                            double targetX = 0.5 * Math.sqrt(Math.pow(distance, 2) / (1 + Math.pow(slope, 2)));
+                            double targetY = 0.5 * (-slope * targetX);
 
                             double x = robot.getX();
-                            double y =robot.getY();
+                            double y = robot.getY();
 
-                            if(x< panel.getWidth()/2){
-                                x +=targetX;
-                                if(y> panel.getHeight()/2){
-                                    y -=targetY;
-                                }else{
-                                    y +=targetY;
+                            if (x < panel.getWidth() / 2) {
+                                x += targetX;
+                                if (y > panel.getHeight() / 2) {
+                                    y -= targetY;
+                                } else {
+                                    y += targetY;
                                 }
-                            } else if(x>panel.getWidth()/2){
-                                x -=targetX;
-                                if(y> panel.getHeight()/2){
-                                    y -=targetY;
-                                }else{
-                                    y +=targetY;
+                            } else if (x > panel.getWidth() / 2) {
+                                x -= targetX;
+                                if (y > panel.getHeight() / 2) {
+                                    y -= targetY;
+                                } else {
+                                    y += targetY;
                                 }
                             }
-
-
-
                             robot.setX(x);
                             robot.setY(y);
-
                             robotList.remove(robot);
-
                         }
-
+                        //没有写1/2 distance
                     }
                 }
 
             }
-
         }
+
     }
+
 }

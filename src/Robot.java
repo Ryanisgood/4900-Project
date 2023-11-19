@@ -16,17 +16,17 @@ public class Robot extends Thread{
     private boolean shouldLookAndCompute = false; //是否需要观察和计算移动方向
     private static final int DOT_SIZE = 5; //代表机器人的圆点尺寸
     private boolean pivot;
-    private int codeNum;
+    private int robotID;
     private int height = 600;
     private int width =800;
     boolean finish = false;
 
 
-    public Robot(double x, double y, int codeNum,boolean pivot, double speed, String group, Environment environment) {
+    public Robot(double x, double y, int robotID,boolean pivot, double speed, String group, Environment environment) {
         // 将初始位置设置为窗口中心附近
         this.x = 400 + x - 200; // 假设窗口宽度为800
         this.y = 300 + y - 200; // 假设窗口高度为600
-        this.codeNum =codeNum;
+        this.robotID =robotID;
         this.pivot = pivot;
         this.speed = speed;
         this.group = group;
@@ -140,7 +140,6 @@ public class Robot extends Thread{
         double centerX = RobotSimulation.WINDOW_WITH / 2.0;
         double centerY = RobotSimulation.WINDOW_HEIGHT / 2.0;
         return Math.sqrt((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY));
-
     }
 
     public void setCircle(Circle circle){
@@ -207,7 +206,7 @@ public class Robot extends Thread{
         return this.pivot;
     }
 
-    public int getCodeNum(){
-        return this.codeNum;
+    public int getRobotID(){
+        return this.robotID;
     }
 }
