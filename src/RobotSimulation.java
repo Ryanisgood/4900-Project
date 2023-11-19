@@ -11,10 +11,9 @@ public class RobotSimulation extends JFrame {
     private RobotScheduler scheduler;
 
     public RobotSimulation() {
-        environment = new Environment();
+        environment = new Environment(this);
         panel = new SimulationPanel();
         initUI();
-        environment.setPanel(panel);
         //启动机器人
         environment.getRobots().forEach(Robot::start);
         int activeThreads = Thread.activeCount();
@@ -39,7 +38,7 @@ public class RobotSimulation extends JFrame {
             panel.repaint();
         }).start();
         new Timer(10, e -> { // 刷圈
-            for (Circle circle : environment.getCircles()) {
+            for (Circle circle : environment.getCircleList()) {
                 if (!environment.hasRobot(circle)) {
                     circle.setActive(false);
                 }
@@ -56,7 +55,7 @@ public class RobotSimulation extends JFrame {
             for (Robot robot : environment.getRobots()) {
                 robot.draw(g);
             }
-            for (Circle circle : environment.getCircles()) {
+            for (Circle circle : environment.getCircleList()) {
                 int centerX = getWidth() / 2;
                 int centerY = getHeight() / 2;
                 circle.draw(centerX,centerY,g);

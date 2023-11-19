@@ -4,20 +4,21 @@ import java.util.List;
 
 public class Environment {
     private final List<Robot> robots;
-    private final List<Circle> circles;
+    private final List<Circle> circleList;
 
     private Circle outside;
 
-    private RobotSimulation.SimulationPanel panel;
+    private RobotSimulation panel;
 
-    public Environment() {
+    public Environment(RobotSimulation panel) {
+        this.panel = panel;
         robots = new ArrayList<>();
-        circles = new ArrayList<>();
+        circleList = new ArrayList<>();
         initRobots();
         initCircles();
         double maxCircleRadius = getMaxCircleRadius();
         Circle outside = null;
-        for (Circle circle : circles) {
+        for (Circle circle : circleList) {
             if (circle.isInScope(maxCircleRadius)) {
                 if(outside==null || outside.getCircleRadius() < circle.getCircleRadius()){
                     outside = circle;
@@ -42,7 +43,7 @@ public class Environment {
         }
     }
     public boolean hasCircle(double len){
-        for (Circle circle : circles) {
+        for (Circle circle : circleList) {
             if(circle.isInScope(len)){
                 return true;
             }
@@ -64,7 +65,7 @@ public class Environment {
             double distance = robot.distanceToOrigin();
             if(!hasCircle(distance)){
                 Circle circle = new Circle(distance);
-                circles.add(circle);
+                circleList.add(circle);
                 for(Robot robot2: robots){
                     //落在圆上的
                     if(circle.isInScope(robot2.distanceToOrigin())){
@@ -74,7 +75,7 @@ public class Environment {
                 }
             }
         }
-        setToPivot(circles);
+        setToPivot(circleList);
     }
 
     public void update(int width, int height) {
@@ -95,8 +96,8 @@ public class Environment {
         return robots;
     }
 
-    public List<Circle> getCircles() {
-        return circles;
+    public List<Circle> getCircleList() {
+        return circleList;
     }
 
     public double getMaxCircleRadius() {
@@ -108,11 +109,6 @@ public class Environment {
             }
         }
         return maxRadius;
-    }
-
-
-    public void setPanel(RobotSimulation.SimulationPanel panel) {
-        this.panel = panel;
     }
 
 
@@ -140,20 +136,18 @@ public class Environment {
 
             }
         }
-        try {
-            robotP.setPivot(true);
-            robotP2.setPivot(true);
-        }catch (NullPointerException e){
-            e.printStackTrace();
-        }
-
+            if(robotP != null) {
+                robotP.setPivot(true);
+            }
+            if(robotP2 != null) {
+                robotP2.setPivot(true);
+            }
     }
 
     // Set pivot robots
     public void setToPivot(List <Circle> circles){
         Robot p1 =null;
         Robot p2 = null;
-
         for(int i =0 ; i< circles.size();i++){
             Circle circle = circles.get(i);
             int robotNumber= circle.getRobotCount();
@@ -197,9 +191,7 @@ public class Environment {
                     findClosestPivot(lowestY, robotList);
                 }
             }
-
             }
-
         }
 
     //Implement reduction phase
@@ -207,7 +199,7 @@ public class Environment {
         if (multiplicityPoint) {
             if (circlesList.size() == 1) {
                 Circle outermost = circlesList.get(0);
-                List<Robot> robotList = outermost.getRobots();
+                List<Robot> robotList = outermost.getRobots(); //判断是否在最外层圆上
                 if (outermost.getRobotCount() > 4) {
                     for (Robot robot : robotList) {
                         if (robot.getPivot() == false) {
@@ -224,7 +216,7 @@ public class Environment {
                 List<Robot> robotList = outermost.getRobots();
                 if (outermost.getRobotCount() > 4) {
                     for (Robot robot : robotList) {
-                        if (robot.getPivot() == false) {
+                        if (!robot.getPivot()) {
                             //move 1/2 distance
                             double distance = outermost.getCircleRadius() - inner.getCircleRadius();
                             double slope = robot.getY() / robot.getX();
@@ -234,16 +226,16 @@ public class Environment {
                             double x = robot.getX();
                             double y = robot.getY();
 
-                            if (x < panel.getWidth() / 2) {
+                            if (x < (double) panel.getWidth() / 2) {
                                 x += targetX;
-                                if (y > panel.getHeight() / 2) {
+                                if (y > (double) panel.getHeight() / 2) {
                                     y -= targetY;
                                 } else {
                                     y += targetY;
                                 }
-                            } else if (x > panel.getWidth() / 2) {
+                            } else if (x > (double) panel.getWidth() / 2) {
                                 x -= targetX;
-                                if (y > panel.getHeight() / 2) {
+                                if (y > (double) panel.getHeight() / 2) {
                                     y -= targetY;
                                 } else {
                                     y += targetY;
