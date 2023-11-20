@@ -4,8 +4,9 @@ import java.awt.*;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 public class RobotSimulation extends JFrame {
+    protected static SimulationPanel panel;
     private final Environment environment;
-    private final SimulationPanel panel;
+
     public ThreadPoolExecutor robotsPoolExecutor;
     public static final int WINDOW_WITH = 800;//初始窗口宽度
     public static final int WINDOW_HEIGHT = 600;//初始窗口高度
@@ -27,6 +28,9 @@ public class RobotSimulation extends JFrame {
         //scheduler = new RobotScheduler(environment);
         //environment.getRobots().forEach(scheduler::start);
     }
+
+
+
     private void bootRobots() {
         for (Robot robot : robots) {
             robotsPoolExecutor.submit(robot);
@@ -77,6 +81,7 @@ public class RobotSimulation extends JFrame {
             int centerX = getWidth() / 2;
             int centerY = getHeight() / 2;
             g.fillOval(centerX - (pointSize / 2), centerY - (pointSize / 2), pointSize, pointSize); // 绘制中心点
+
         }
 
         private void drawAxes(Graphics g) {
