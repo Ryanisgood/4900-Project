@@ -16,14 +16,12 @@ public class RobotSimulation extends JFrame {
     public RobotSimulation() {
         environment = new Environment(this);
         panel = new SimulationPanel();
-        robots = environment.getRobots();
         initUI();
+        robots = environment.getRobots();
         //启动机器人
         robotsPoolExecutor =new ScheduledThreadPoolExecutor(100);
         //environment.getRobots().forEach(Robot::start);
         bootRobots();
-        int activeThreads = Thread.activeCount();
-        System.out.println("当前活动的线程数: " + activeThreads);
         //启动机器人调度器
         //scheduler = new RobotScheduler(environment);
         //environment.getRobots().forEach(scheduler::start);
@@ -48,14 +46,9 @@ public class RobotSimulation extends JFrame {
     private void setUpTimer() {
         new Timer(10, e -> { // 减少定时器延迟以增加刷新率
             environment.update(panel.getWidth(), panel.getHeight());
+            int activeThreads = Thread.activeCount();
+            System.out.println("当前活动的线程数: " + activeThreads);
             panel.repaint();
-        }).start();
-        new Timer(10, e -> { // 刷圈
-            for (Circle circle : environment.getCircleList()) {
-                if (!environment.hasRobot(circle)) {
-                    circle.setActive(false);
-                }
-            }
         }).start();
     }
 
@@ -76,7 +69,7 @@ public class RobotSimulation extends JFrame {
         }
 
         private void drawCenter(Graphics g) {
-            int pointSize = 10;
+            int pointSize = 5;
             g.setColor(Color.BLACK);
             int centerX = getWidth() / 2;
             int centerY = getHeight() / 2;

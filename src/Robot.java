@@ -4,7 +4,6 @@ import java.awt.*;
 import java.util.List;
 import javax.swing.*;
 
-
 public class Robot implements Runnable {
     private double x, y; // 位置坐标
     private final double speed; // 速度
@@ -24,7 +23,6 @@ public class Robot implements Runnable {
     private static final int DOT_SIZE = 5; //代表机器人的圆点尺寸
     private boolean pivot;
     private int robotID;
-
     boolean finish = false;
     double targetX;
     double targetY;
@@ -55,18 +53,14 @@ public class Robot implements Runnable {
 
 
     public void compute(){
-        panel = RobotSimulation.panel;
+        this.panel = RobotSimulation.panel;
         circles=environment.getCircleList();
         innerSide=circles.get(0);
-
         if (circle == null) return;
         if (!active) return; // 如果机器人处于非激活状态，则不移动
         //Formation Phrase
         //the innermost circle
-
         if(!circle.equals(innerSide)){return;}
-        System.out.println(innerSide.getCircleRadius());
-        System.out.println(x+"  "+y);
         // 计算目标点
         if ("gathering".equals(group)) {
             targetX = panel.getWidth() / 2.0;
@@ -113,7 +107,6 @@ public class Robot implements Runnable {
     public void run() {
         new Timer(10, e -> { // 减少定时器延迟以增加机器人刷新率
             //如果激活false，则睡眠
-
                 look();
                 compute();
                 move();
@@ -131,23 +124,15 @@ public class Robot implements Runnable {
 
         x += speed * Math.cos(angle);
         y += speed * Math.sin(angle);
-        System.out.println(robots.size());
 
        // 判断在不在当前圆上
         if(!circle.isInScope(this.distanceToOrigin())){
             robots.remove(this);
         }
 
-
-        if(robots.size()==0){
+        if(robots.isEmpty() && !active){
             circles.remove(circle);
         }
-
-
-
-        System.out.println(robots.size());
-
-
     }
 
     public void draw(Graphics g) {
@@ -161,8 +146,8 @@ public class Robot implements Runnable {
 
     // 计算到原点的距离
     public double distanceToOrigin() {
-        double centerX = RobotSimulation.WINDOW_WITH / 2.0;
-        double centerY = RobotSimulation.WINDOW_HEIGHT / 2.0;
+        double centerX = 393;
+        double centerY = 281;
         return Math.sqrt((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY));
     }
 
@@ -235,4 +220,15 @@ public class Robot implements Runnable {
         return this.robotID;
     }
 
+
+    @Override
+    public String toString() {
+        return "Robot{" +
+                "x=" + x +
+                ", y=" + y +
+                ", group='" + group + '\'' +
+                ", active=" + active +
+                ", robotID=" + robotID +
+                '}';
+    }
 }

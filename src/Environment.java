@@ -19,6 +19,7 @@ public class Environment {
 
     private Circle innerSide;
     private RobotSimulation panel;
+    private Circle nextCircle;
 
     public Environment(RobotSimulation panel) {
         this.panel = panel;
@@ -54,11 +55,14 @@ public class Environment {
             }
         });
         this.innerSide = circleList.get(0);
+        this.nextCircle =circleList.get(1);
         System.out.println(innerSide.getCircleRadius()+"121321");
         for(Robot robot : robots){
             robot.setMaxcircle(outside);
             robot.setInnerSide(innerSide);
-            robot.setActive(true);
+            if(robot.getCircle().equals(innerSide)) {
+                robot.setActive(true);
+            }
         }
     }
 
@@ -72,6 +76,8 @@ public class Environment {
             Robot robot = new Robot(x, y, i,false,1.0, group, this);
             robots.add(robot);
         }
+        Robot test = new Robot(211.4225530889187, 175.15595534821585, 999, false, 1.0 ,"gathering", this);
+        robots.add(test);
     }
     public boolean hasCircle(double len){
         for (Circle circle : circleList) {
@@ -100,8 +106,12 @@ public class Environment {
                 for(Robot robot2: robots){
                     //落在圆上的
                     if(circle.isInScope(robot2.distanceToOrigin())){
-                        circle.addRobot(robot2);
-                        robot2.setCircle(circle);
+                        if(!circle.getRobots().contains(robot2)) {
+                            circle.addRobot(robot2);
+                        }
+                        if(robot2.getCircle()==null) {
+                            robot2.setCircle(circle);
+                        }
                     }
                 }
             }
@@ -112,22 +122,61 @@ public class Environment {
     public void update(int width, int height) {
         // 更新所有机器人的状态
         for (Robot robot : robots) {
-            if(robot.getGroup().equals("circle")&& outside.isInScope(robot.distanceToOrigin())){
-                robot.setActive(false);
-                robot.setFinish(true);;
-            }
-            //只有最内圈会动时
-            /*
-            if(circleList.size()>1) {
-                Circle nextCircle = circleList.get(1);
-                if(nextCircle.isInScope(robot.distanceToOrigin())){
-                    robot.setCircle(nextCircle);
-                    circleList.remove(circleList.get(0));
+            if (nextCircle.isInScope(robot.distanceToOrigin()) && robot.getGroup().equals("circle")) {
+                if(robot.isActive()) {
+                    System.out.println("circle false");
+                    robot.setActive(false);
                 }
+                //如果离下一个圆太近，直接将下一个圆设定为最内圈圆
+                if(nextCircle.isInScope((robot.distanceToOrigin())) && robot.getCircle() != null && robot.getCircle().equals(innerSide)){
+                    if(checkActive()) {
+                        robot.setCircle(nextCircle);
+                        innerSide.setActive(false);
+                        circleList.remove(0);
+                        innerSide = circleList.get(0);
+                        nextCircle = circleList.get(1);
+                        for (Robot robot1 : robots) { //遍历机器人，如果他们全都完成了自己的任务，激活下一圈上的机器人
+                            robot1.setInnerSide(circleList.get(0));
+                            if (robot1.getCircle() != null && robot1.getCircle().equals(innerSide)) {
+                                System.out.println("太近激活");
+                                robot1.setActive(true);
+                            }
+                        }
+                    }
+                }
+                robot.setCircle(nextCircle);//不在circle上了,下一个circle设置为当前机器人circle
+                if(!nextCircle.getRobots().contains(robot)) {
+                    nextCircle.addRobot(robot);
+                }
+                rebootRobot();
+            }else
+            if(robot.getGroup().equals("gathering") && robot.distanceToOrigin() < 3){
+                if(robot.isActive()) {
+                    robot.setActive(false);
+                }
+                if(nextCircle.isInScope((robot.distanceToOrigin())) && robot.getCircle() != null && robot.getCircle().equals(innerSide)){
+                    if(checkActive()) {
+                        innerSide.setActive(false);
+                        circleList.remove(0);
+                        innerSide = circleList.get(0);
+                        nextCircle = circleList.get(1);
+                        for (Robot robot1 : robots) { //遍历机器人，如果他们全都完成了自己的任务，激活下一圈上的机器人
+                            robot1.setInnerSide(circleList.get(0));
+                            if (robot1.getCircle() != null && robot1.getCircle().equals(innerSide)) {
+                                robot1.setActive(true);
+                            }
+                        }
+                    }
+                }
+                robot.setCircle(null);//不在circle上了
+                rebootRobot();
             }
-            robot.setInnerSide(circleList.get(0));
+            if(robot.getCircle() != null && robot.getCircle().equals(innerSide)){ //检查机器人状态
+                System.out.println(robot);
+                System.out.println(innerSide.getRobots().size());
+            }
 
-             */
+
         }
     }
 
@@ -293,6 +342,32 @@ public class Environment {
             }
         }
 
+    }
+
+    public void rebootRobot(){
+        if(!hasRobot(innerSide) && checkActive()){
+            innerSide.setActive(false);
+            circleList.remove(0);
+            innerSide = circleList.get(0);
+            nextCircle = circleList.get(1);
+            for(Robot robot1 : robots){ //遍历机器人，如果他们全都完成了自己的任务，激活下一圈上的机器人
+                robot1.setInnerSide(circleList.get(0));
+                if(robot1.getCircle() !=null && robot1.getCircle().equals(innerSide)){
+                    System.out.println(robot1.getRobotID()+"   True1");
+                    robot1.setActive(true);
+                }
+
+            }
+        }
+    }
+
+    public boolean checkActive(){
+        for(Robot robot:robots){
+            if(robot.isActive()){
+                return false;
+            }
+        }
+        return true;
     }
 
 }
