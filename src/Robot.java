@@ -1,6 +1,7 @@
 
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.util.List;
 import javax.swing.*;
 
@@ -27,6 +28,8 @@ public class Robot implements Runnable {
     double targetX;
     double targetY;
     int start = 0;
+    private Robot collisionRobot;//collision, need to change angle
+    private Robot adjacentRobot;// adjacent with collisionRobot
 
 
     public Robot(double x, double y, int robotID,boolean pivot, double speed, String group, Environment environment) {
@@ -65,23 +68,47 @@ public class Robot implements Runnable {
         if ("gathering".equals(group)) {
             targetX = panel.getWidth() / 2.0;
             targetY = panel.getHeight() / 2.0;
-        }/*else {
-            if(!isObstacle) {
-                //有问题
-                //compute the default direction angle of circling group
-                double slope = y/x;
-                targetX = Math.sqrt(Math.pow(Maxcircle.getCircleRadius(), 2) / (1 + Math.pow(slope, 2)));
-                targetY =  -slope * targetX;
-                if (x < 0) {
-                    targetX = -targetX;
-                    targetY = -targetY;
-                }
+        }else {// "circle" group
+            // if collision, find one of the two adjective angles
+            if(isObstacle) {
+                //center point of circle
+                Point2D.Double center = new Point2D.Double(panel.getWidth()/2, panel.getHeight()/2);
+                //get next circle radius
+                double nextRadius=environment.getCircleList().get(1).getCircleRadius();
+                // compute the difference of all robots with collisionRobot in the circle
+                // and find the min diff,so they are adjective
 
-            }else {
-                targetX =0;
-                targetY =0;
+                double minDiff=Integer.MAX_VALUE;
+                for (Robot robot:robots){
+                    if(!robot.equals(collisionRobot)){
+                        double difference=Math.sqrt(Math.pow(Math.abs(robot.x-collisionRobot.x),2)
+                                +Math.pow(Math.abs(robot.y-collisionRobot.y),2));
+                        if (difference<minDiff){
+                            minDiff=difference;
+                            adjacentRobot.x=robot.x;
+                            adjacentRobot.y=robot.y;
+                        }
+                    }
+                }
+                // Calculate the angle between adjacent robot(A) and  collision robot(C) with respect to the center
+                double angleAC = Math.atan2( collisionRobot.getY()- center.getY(), collisionRobot.getX() - center.getX())
+                        - Math.atan2(adjacentRobot.getY() - center.getY(), adjacentRobot.getX() - center.getX());
+                // ensure angle is positive
+                if (angleAC < 0) {
+                    angleAC += 2 * Math.PI;
+                }
+                // 1/3 of the angle
+                double oneThirdAngle = angleAC / 3.0;
+
+                // Calculate the new coordinate for collision robot at 1/3 of the angle in next circle.
+                Point2D.Double robotToMove = new Point2D.Double(
+                        nextRadius * Math.cos(oneThirdAngle),
+                        nextRadius * Math.sin(oneThirdAngle)
+                );
+
+
             }
-        }*/
+        }
         // 计算到目标点的距离
         double distanceToTarget = Math.hypot(targetX - x, targetY - y);
         // 对于蓝色机器人（聚集组），设置目标点为窗口中心
@@ -110,8 +137,11 @@ public class Robot implements Runnable {
                 look();
                 compute();
                 move();
-
+                if (this.distanceToOrigin() < 3 || (group.equals("circle") && Maxcircle.isInScope(this.distanceToOrigin()))) {
+                ((Timer) e.getSource()).stop();
+            }
         }).start();
+        //timer结束后停止运行
     }
 
     public void move() {
@@ -122,17 +152,18 @@ public class Robot implements Runnable {
 
         robots = circle.getRobots();
 
-        x += speed * Math.cos(angle);
-        y += speed * Math.sin(angle);
-
+        if(group.equals("gathering") && this.distanceToOrigin() > 30){
+            x += 3* speed * Math.cos(angle);
+            y += 3* speed * Math.sin(angle);
+        }else {
+            x += speed * Math.cos(angle);
+            y += speed * Math.sin(angle);
+        }
        // 判断在不在当前圆上
         if(!circle.isInScope(this.distanceToOrigin())){
             robots.remove(this);
         }
 
-        if(robots.isEmpty() && !active){
-            circles.remove(circle);
-        }
     }
 
     public void draw(Graphics g) {

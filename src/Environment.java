@@ -1,4 +1,5 @@
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -68,16 +69,18 @@ public class Environment {
 
 
     private void initRobots() {
-        for (int i = 0; i < 100; i++) {
-            // 创建机器人并随机分配到两个组
-            String group = i % 2 == 0 ? "gathering" : "circle";
+
+        int counter = 0;
+        while (robots.size() < 10){
+            String group = counter % 2 == 0 ? "gathering" : "circle";
             double x = Math.random() * 400;
             double y = Math.random() * 400;
-            Robot robot = new Robot(x, y, i,false,1.0, group, this);
-            robots.add(robot);
+            Robot robot = new Robot(x, y, counter++,false,1.0, group, this);
+            if (distanceBetweenRobot(robot)) {
+                robots.add(robot);
+            }
         }
-        Robot test = new Robot(211.4225530889187, 175.15595534821585, 999, false, 1.0 ,"gathering", this);
-        robots.add(test);
+
     }
     public boolean hasCircle(double len){
         for (Circle circle : circleList) {
@@ -127,46 +130,18 @@ public class Environment {
                     System.out.println("circle false");
                     robot.setActive(false);
                 }
-                //如果离下一个圆太近，直接将下一个圆设定为最内圈圆
-                if(nextCircle.isInScope((robot.distanceToOrigin())) && robot.getCircle() != null && robot.getCircle().equals(innerSide)){
-                    if(checkActive()) {
-                        robot.setCircle(nextCircle);
-                        innerSide.setActive(false);
-                        circleList.remove(0);
-                        innerSide = circleList.get(0);
-                        nextCircle = circleList.get(1);
-                        for (Robot robot1 : robots) { //遍历机器人，如果他们全都完成了自己的任务，激活下一圈上的机器人
-                            robot1.setInnerSide(circleList.get(0));
-                            if (robot1.getCircle() != null && robot1.getCircle().equals(innerSide)) {
-                                System.out.println("太近激活");
-                                robot1.setActive(true);
-                            }
-                        }
-                    }
-                }
                 robot.setCircle(nextCircle);//不在circle上了,下一个circle设置为当前机器人circle
                 if(!nextCircle.getRobots().contains(robot)) {
                     nextCircle.addRobot(robot);
+                    if(innerSide.getRobots().contains(robot)){
+                        innerSide.removeRobot(robot);
+                    }
                 }
                 rebootRobot();
             }else
             if(robot.getGroup().equals("gathering") && robot.distanceToOrigin() < 3){
                 if(robot.isActive()) {
                     robot.setActive(false);
-                }
-                if(nextCircle.isInScope((robot.distanceToOrigin())) && robot.getCircle() != null && robot.getCircle().equals(innerSide)){
-                    if(checkActive()) {
-                        innerSide.setActive(false);
-                        circleList.remove(0);
-                        innerSide = circleList.get(0);
-                        nextCircle = circleList.get(1);
-                        for (Robot robot1 : robots) { //遍历机器人，如果他们全都完成了自己的任务，激活下一圈上的机器人
-                            robot1.setInnerSide(circleList.get(0));
-                            if (robot1.getCircle() != null && robot1.getCircle().equals(innerSide)) {
-                                robot1.setActive(true);
-                            }
-                        }
-                    }
                 }
                 robot.setCircle(null);//不在circle上了
                 rebootRobot();
@@ -349,11 +324,16 @@ public class Environment {
             innerSide.setActive(false);
             circleList.remove(0);
             innerSide = circleList.get(0);
-            nextCircle = circleList.get(1);
+            if(circleList.size()>1) {
+                nextCircle = circleList.get(1);
+            }
             for(Robot robot1 : robots){ //遍历机器人，如果他们全都完成了自己的任务，激活下一圈上的机器人
                 robot1.setInnerSide(circleList.get(0));
                 if(robot1.getCircle() !=null && robot1.getCircle().equals(innerSide)){
                     System.out.println(robot1.getRobotID()+"   True1");
+                    if(robot1.getGroup().equals("circle") && outside.isInScope(robot1.distanceToOrigin())){
+                        continue;
+                    }
                     robot1.setActive(true);
                 }
 
@@ -364,6 +344,16 @@ public class Environment {
     public boolean checkActive(){
         for(Robot robot:robots){
             if(robot.isActive()){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean distanceBetweenRobot(Robot robot){ //used to keep the distance between each circles
+        double distance = robot.distanceToOrigin();
+        for(Robot robot1: robots){
+            if(Math.abs(distance - robot1.distanceToOrigin()) < 15 && Math.abs(distance - robot1.distanceToOrigin()) > 1.5 ){
                 return false;
             }
         }
