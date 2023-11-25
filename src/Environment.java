@@ -80,7 +80,10 @@ public class Environment {
                 robots.add(robot);
             }
         }
-
+        Robot robot = new Robot(100, 0, 999, false, 1.0,"circle", this);
+        Robot robot2 = new Robot(400,200, 998, false, 1.0,"circle", this);
+        robots.add(robot);
+        robots.add(robot2);
     }
     public boolean hasCircle(double len){
         for (Circle circle : circleList) {
@@ -133,9 +136,6 @@ public class Environment {
                 robot.setCircle(nextCircle);//不在circle上了,下一个circle设置为当前机器人circle
                 if(!nextCircle.getRobots().contains(robot)) {
                     nextCircle.addRobot(robot);
-                    if(innerSide.getRobots().contains(robot)){
-                        innerSide.removeRobot(robot);
-                    }
                 }
                 rebootRobot();
             }else
@@ -147,7 +147,7 @@ public class Environment {
                 rebootRobot();
             }
             if(robot.getCircle() != null && robot.getCircle().equals(innerSide)){ //检查机器人状态
-                System.out.println(robot);
+                System.out.println(robot +"  "+ robot.getCircle().equals(innerSide));
                 System.out.println(innerSide.getRobots().size());
             }
 
@@ -165,7 +165,10 @@ public class Environment {
         return circleList;
     }
 
-    public double getMaxCircleRadius() {
+    public double
+
+
+    getMaxCircleRadius() {
         double maxRadius = 0;
         for (Robot robot : robots) {
             if ("circle".equals(robot.getGroup())) {
@@ -330,10 +333,11 @@ public class Environment {
             for(Robot robot1 : robots){ //遍历机器人，如果他们全都完成了自己的任务，激活下一圈上的机器人
                 robot1.setInnerSide(circleList.get(0));
                 if(robot1.getCircle() !=null && robot1.getCircle().equals(innerSide)){
-                    System.out.println(robot1.getRobotID()+"   True1");
-                    if(robot1.getGroup().equals("circle") && outside.isInScope(robot1.distanceToOrigin())){
+                    if(robot1.getGroup().equals("circle") && robot1.getCircle().equals(outside)){
+                        System.out.println("traped");
                         continue;
                     }
+                    System.out.println(robot1.getRobotID()+"   True1");
                     robot1.setActive(true);
                 }
 

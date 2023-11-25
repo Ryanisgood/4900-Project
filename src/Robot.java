@@ -19,12 +19,12 @@ public class Robot implements Runnable {
 
     RobotSimulation.SimulationPanel panel;
     private Circle Maxcircle;
-
+    private Circle nextCircle;
     private Circle innerSide;
     private static final int DOT_SIZE = 5; //代表机器人的圆点尺寸
     private boolean pivot;
     private int robotID;
-    boolean finish = false;
+
     double targetX;
     double targetY;
     int start = 0;
@@ -59,30 +59,52 @@ public class Robot implements Runnable {
         this.panel = RobotSimulation.panel;
         circles=environment.getCircleList();
         innerSide=circles.get(0);
+        if(circles.size()>1) {
+            nextCircle = circles.get(1);
+        }
         if (circle == null) return;
         if (!active) return; // 如果机器人处于非激活状态，则不移动
         //Formation Phrase
         //the innermost circle
         if(!circle.equals(innerSide)){return;}
+        double radDiff =nextCircle.getCircleRadius()-innerSide.getCircleRadius();
         // 计算目标点
         if ("gathering".equals(group)) {
             targetX = panel.getWidth() / 2.0;
             targetY = panel.getHeight() / 2.0;
         }else {// "circle" group
+            double slope = (y- panel.getHeight()/2)/ panel.getHeight()/2;
+            double upperSlope =(y+5- panel.getHeight()/2)/ panel.getHeight()/2;
+            double lowerSlope=(y-5- panel.getHeight()/2)/ panel.getHeight()/2;
+            double upperDifference=upperSlope-slope;
+            double lowerDifference = slope-lowerSlope;
+            //Detect Collision
+            for (Robot robotOnC2: nextCircle.getRobots()){
+                double slopeC2 = robotOnC2.y-panel.getHeight()/2/robotOnC2.x- panel.getWidth()/2;
+                if (Math.abs(slopeC2-slope)<=upperDifference&&Math.abs(slopeC2-slope)<=lowerDifference){
+                    isObstacle=true;
+                    break;
+                }
+            }
             // if collision, find one of the two adjective angles
             if(isObstacle) {
-                //center point of circle
-                Point2D.Double center = new Point2D.Double(panel.getWidth()/2, panel.getHeight()/2);
-                //get next circle radius
-                double nextRadius=environment.getCircleList().get(1).getCircleRadius();
+                //Detect Collision
+                for (Robot robotOnC2: nextCircle.getRobots()){
+                    double slopeC2 = robotOnC2.y-panel.getHeight()/2/robotOnC2.x- panel.getWidth()/2;
+                    if (Math.abs(slopeC2-slope)<=upperDifference&&Math.abs(slopeC2-slope)<=lowerDifference){
+                        isObstacle=true;
+                        break;
+                    }
+                }
+                double nextRadius=nextCircle.getCircleRadius();
                 // compute the difference of all robots with collisionRobot in the circle
                 // and find the min diff,so they are adjective
-
                 double minDiff=Integer.MAX_VALUE;
-                for (Robot robot:robots){
-                    if(!robot.equals(collisionRobot)){
-                        double difference=Math.sqrt(Math.pow(Math.abs(robot.x-collisionRobot.x),2)
-                                +Math.pow(Math.abs(robot.y-collisionRobot.y),2));
+                List<Robot> c1Robots = circle.getRobots();
+                for (Robot robot:c1Robots){
+                    if(!robot.equals(this)){
+                        double difference=Math.sqrt(Math.pow(Math.abs(robot.x-x),2)
+                                +Math.pow(Math.abs(robot.y-y),2));
                         if (difference<minDiff){
                             minDiff=difference;
                             adjacentRobot.x=robot.x;
@@ -91,8 +113,8 @@ public class Robot implements Runnable {
                     }
                 }
                 // Calculate the angle between adjacent robot(A) and  collision robot(C) with respect to the center
-                double angleAC = Math.atan2( collisionRobot.getY()- center.getY(), collisionRobot.getX() - center.getX())
-                        - Math.atan2(adjacentRobot.getY() - center.getY(), adjacentRobot.getX() - center.getX());
+                double angleAC = Math.atan2( y- panel.getHeight()/2, x - panel.getWidth()/2)
+                        - Math.atan2(adjacentRobot.y -panel.getHeight()/2, adjacentRobot.x -  panel.getWidth()/2);
                 // ensure angle is positive
                 if (angleAC < 0) {
                     angleAC += 2 * Math.PI;
@@ -101,13 +123,17 @@ public class Robot implements Runnable {
                 double oneThirdAngle = angleAC / 3.0;
 
                 // Calculate the new coordinate for collision robot at 1/3 of the angle in next circle.
-                Point2D.Double robotToMove = new Point2D.Double(
-                        nextRadius * Math.cos(oneThirdAngle),
-                        nextRadius * Math.sin(oneThirdAngle)
-                );
 
+                targetX=nextRadius * Math.cos(oneThirdAngle);
+                targetY =nextRadius * Math.sin(oneThirdAngle);
+
+
+            }else{
+                targetX= x+radDiff/Math.sqrt(1+Math.pow(slope,2));
+                targetY = y+radDiff*slope/Math.sqrt(1+Math.pow(slope,2));
 
             }
+            angle =Math.atan2(targetY - panel.getHeight()/2, targetX - panel.getWidth()/2);
         }
         // 计算到目标点的距离
         double distanceToTarget = Math.hypot(targetX - x, targetY - y);
@@ -137,9 +163,7 @@ public class Robot implements Runnable {
                 look();
                 compute();
                 move();
-                if (this.distanceToOrigin() < 3 || (group.equals("circle") && Maxcircle.isInScope(this.distanceToOrigin()))) {
-                ((Timer) e.getSource()).stop();
-            }
+
         }).start();
         //timer结束后停止运行
     }
@@ -169,6 +193,8 @@ public class Robot implements Runnable {
     public void draw(Graphics g) {
         if ("gathering".equals(group)) {
             g.setColor(Color.BLUE);
+        } else if (robotID == 999 || robotID == 998) {
+            g.setColor(Color.green);
         } else {
             g.setColor(Color.RED);
         }
@@ -191,7 +217,13 @@ public class Robot implements Runnable {
     }
 
     public void setActive(boolean active) {
-        this.active = active;
+        if(active = false){
+            this.active = active;
+            isObstacle = false;
+        }else {
+            this.active = active;
+        }
+
     }
 
     // 省略getter和setter方法
@@ -232,9 +264,6 @@ public class Robot implements Runnable {
         return active;
     }
 
-    public void setFinish(boolean flag){
-        finish = flag;
-    }
     public void setMaxcircle(Circle circle){
         Maxcircle = circle;
     }
