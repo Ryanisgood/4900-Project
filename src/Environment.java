@@ -57,11 +57,11 @@ public class Environment {
         });
         this.innerSide = circleList.get(0);
         this.nextCircle =circleList.get(1);
-        System.out.println(innerSide.getCircleRadius()+"121321");
         for(Robot robot : robots){
             robot.setMaxcircle(outside);
             robot.setInnerSide(innerSide);
             if(robot.getCircle().equals(innerSide)) {
+                robot.setRobotsOnCircle(innerSide.getRobots());
                 robot.setActive(true);
             }
         }
@@ -71,7 +71,7 @@ public class Environment {
     private void initRobots() {
 
         int counter = 0;
-        while (robots.size() < 10){
+        while (robots.size() < 100){
             String group = counter % 2 == 0 ? "gathering" : "circle";
             double x = Math.random() * 400;
             double y = Math.random() * 400;
@@ -80,10 +80,6 @@ public class Environment {
                 robots.add(robot);
             }
         }
-        Robot robot = new Robot(100, 0, 999, false, 1.0,"circle", this);
-        Robot robot2 = new Robot(400,200, 998, false, 1.0,"circle", this);
-        robots.add(robot);
-        robots.add(robot2);
     }
     public boolean hasCircle(double len){
         for (Circle circle : circleList) {
@@ -130,7 +126,6 @@ public class Environment {
         for (Robot robot : robots) {
             if (nextCircle.isInScope(robot.distanceToOrigin()) && robot.getGroup().equals("circle")) {
                 if(robot.isActive()) {
-                    System.out.println("circle false");
                     robot.setActive(false);
                 }
                 robot.setCircle(nextCircle);//不在circle上了,下一个circle设置为当前机器人circle
@@ -148,7 +143,6 @@ public class Environment {
             }
             if(robot.getCircle() != null && robot.getCircle().equals(innerSide)){ //检查机器人状态
                 System.out.println(robot +"  "+ robot.getCircle().equals(innerSide));
-                System.out.println(innerSide.getRobots().size());
             }
 
 
@@ -165,17 +159,12 @@ public class Environment {
         return circleList;
     }
 
-    public double
-
-
-    getMaxCircleRadius() {
+    public double getMaxCircleRadius() {
         double maxRadius = 0;
         for (Robot robot : robots) {
-            if ("circle".equals(robot.getGroup())) {
                 double distance = robot.distanceToOrigin();
                 maxRadius = Math.max(maxRadius, distance);
             }
-        }
         return maxRadius;
     }
 
@@ -204,12 +193,12 @@ public class Environment {
 
             }
         }
-            if(robotP != null) {
-                robotP.setPivot(true);
-            }
-            if(robotP2 != null) {
-                robotP2.setPivot(true);
-            }
+        if(robotP != null) {
+            robotP.setPivot(true);
+        }
+        if(robotP2 != null) {
+            robotP2.setPivot(true);
+        }
     }
 
     // Set pivot robots
@@ -251,7 +240,7 @@ public class Environment {
                 else if (p1 != null) {
                     p1.setPivot(true);
                     p2.setPivot(true);
-                //Condition 3
+                    //Condition 3
                 }else{
                     double highestY = (double) panel.getHeight() / 2 + circle.getCircleRadius();
                     double lowestY = (double) panel.getHeight() / 2 - circle.getCircleRadius();
@@ -259,8 +248,8 @@ public class Environment {
                     findClosestPivot(lowestY, robotList);
                 }
             }
-            }
         }
+    }
 
     //Implement reduction phase
     public void reductionPhase(boolean multiplicityPoint, List<Circle> circlesList) {
@@ -334,10 +323,9 @@ public class Environment {
                 robot1.setInnerSide(circleList.get(0));
                 if(robot1.getCircle() !=null && robot1.getCircle().equals(innerSide)){
                     if(robot1.getGroup().equals("circle") && robot1.getCircle().equals(outside)){
-                        System.out.println("traped");
                         continue;
                     }
-                    System.out.println(robot1.getRobotID()+"   True1");
+                    robot1.setRobotsOnCircle(innerSide.getRobots());
                     robot1.setActive(true);
                 }
 

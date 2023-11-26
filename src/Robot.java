@@ -2,6 +2,7 @@
 
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 
@@ -12,6 +13,8 @@ public class Robot implements Runnable {
     private final String group; // 组别："gathering" 或 "circle"
     private boolean active; // 是否激活
     private boolean isObstacle; //是否遇到障碍物
+
+
     private final Environment environment;
     private Circle circle; //所在圆圈
     List<Circle>circles;
@@ -30,8 +33,9 @@ public class Robot implements Runnable {
     int start = 0;
     private Robot collisionRobot;//collision, need to change angle
     private Robot adjacentRobot;// adjacent with collisionRobot
+    private boolean needCompute;
 
-
+    private List<Robot> robotsOnCircle;
     public Robot(double x, double y, int robotID,boolean pivot, double speed, String group, Environment environment) {
         // 将初始位置设置为窗口中心附近
         this.x = 400 + x - 200; // 假设窗口宽度为800
@@ -44,13 +48,15 @@ public class Robot implements Runnable {
         this.active = false;
         this.circle = null;
         this.isObstacle = false;
-
+        robotsOnCircle = new ArrayList<>();
+        needCompute = true;
     }
 
 
     public void look(){
         //观察所有机器人
-        List<Robot> robots = environment.getRobots();
+        robots = environment.getRobots();
+
         //记录数据
     }
 
@@ -72,62 +78,61 @@ public class Robot implements Runnable {
         if ("gathering".equals(group)) {
             targetX = panel.getWidth() / 2.0;
             targetY = panel.getHeight() / 2.0;
-        }else {// "circle" group
-            double slope = (y- panel.getHeight()/2)/ panel.getHeight()/2;
-            double upperSlope =(y+5- panel.getHeight()/2)/ panel.getHeight()/2;
-            double lowerSlope=(y-5- panel.getHeight()/2)/ panel.getHeight()/2;
-            double upperDifference=upperSlope-slope;
-            double lowerDifference = slope-lowerSlope;
-            //Detect Collision
-            for (Robot robotOnC2: nextCircle.getRobots()){
-                double slopeC2 = robotOnC2.y-panel.getHeight()/2/robotOnC2.x- panel.getWidth()/2;
-                if (Math.abs(slopeC2-slope)<=upperDifference&&Math.abs(slopeC2-slope)<=lowerDifference){
-                    isObstacle=true;
-                    break;
+        }
+
+        else {// "circle" group
+            double slope = (y - panel.getHeight() / 2) / panel.getHeight() / 2;
+            if(!isObstacle) {
+                targetX = x + radDiff / Math.sqrt(1 + Math.pow(slope, 2));
+                targetY = y + radDiff * slope / Math.sqrt(1 + Math.pow(slope, 2));
+                //Detect Collision
+                for (Robot robotOnC2 : nextCircle.getRobots()) {
+                    if ((Math.abs(robotOnC2.y - targetY) < 50) || (Math.abs(robotOnC2.x - targetX) < 50)) {
+                        isObstacle = true;
+                        break;
+                    }
                 }
             }
             // if collision, find one of the two adjective angles
             if(isObstacle) {
-                //Detect Collision
-                for (Robot robotOnC2: nextCircle.getRobots()){
-                    double slopeC2 = robotOnC2.y-panel.getHeight()/2/robotOnC2.x- panel.getWidth()/2;
-                    if (Math.abs(slopeC2-slope)<=upperDifference&&Math.abs(slopeC2-slope)<=lowerDifference){
-                        isObstacle=true;
-                        break;
-                    }
-                }
-                double nextRadius=nextCircle.getCircleRadius();
-                // compute the difference of all robots with collisionRobot in the circle
-                // and find the min diff,so they are adjective
-                double minDiff=Integer.MAX_VALUE;
-                List<Robot> c1Robots = circle.getRobots();
-                for (Robot robot:c1Robots){
-                    if(!robot.equals(this)){
-                        double difference=Math.sqrt(Math.pow(Math.abs(robot.x-x),2)
-                                +Math.pow(Math.abs(robot.y-y),2));
-                        if (difference<minDiff){
-                            minDiff=difference;
-                            adjacentRobot.x=robot.x;
-                            adjacentRobot.y=robot.y;
+                    if(needCompute) {
+                        System.out.println("Detect collision " + robotID);
+                        //Detect Collision
+                        double nextRadius = nextCircle.getCircleRadius();
+                        // compute the difference of all robots with collisionRobot in the circle
+                        // and find the min diff,so they are adjective
+                        double minDiff = Integer.MAX_VALUE;
+                        double oneThirdAngle = 0;
+                        if (robotsOnCircle.size() > 1) {
+                            adjacentRobot = robotsOnCircle.get(0);
+                            for (Robot robot : robotsOnCircle) {
+                                if (!robot.equals(this)) {
+                                    double difference = Math.sqrt(Math.pow(Math.abs(robot.x - x), 2)
+                                            + Math.pow(Math.abs(robot.y - y), 2));
+                                    if (difference < minDiff) {
+                                        minDiff = difference;
+                                        adjacentRobot.x = robot.x;
+                                        adjacentRobot.y = robot.y;
+                                    }
+                                }
+                            }
+                            // Calculate the angle between adjacent robot(A) and  collision robot(C) with respect to the center
+                            double angleAC = Math.atan2(y - panel.getHeight() / 2, x - panel.getWidth() / 2)
+                                    - Math.atan2(adjacentRobot.y - panel.getHeight() / 2, adjacentRobot.x - panel.getWidth() / 2);
+                            // ensure angle is positive
+                            if (angleAC < 0) {
+                                angleAC += 2 * Math.PI;
+                            }
+                            // 1/3 of the angle
+                            oneThirdAngle = angleAC / 3.0;
+                        } else {
+                            oneThirdAngle = Math.toRadians(30);
                         }
+                        // Calculate the new coordinate for collision robot at 1/3 of the angle in next circle.
+                        targetX = nextRadius * Math.cos(oneThirdAngle);
+                        targetY = nextRadius * Math.sin(oneThirdAngle);
+                        needCompute = false;
                     }
-                }
-                // Calculate the angle between adjacent robot(A) and  collision robot(C) with respect to the center
-                double angleAC = Math.atan2( y- panel.getHeight()/2, x - panel.getWidth()/2)
-                        - Math.atan2(adjacentRobot.y -panel.getHeight()/2, adjacentRobot.x -  panel.getWidth()/2);
-                // ensure angle is positive
-                if (angleAC < 0) {
-                    angleAC += 2 * Math.PI;
-                }
-                // 1/3 of the angle
-                double oneThirdAngle = angleAC / 3.0;
-
-                // Calculate the new coordinate for collision robot at 1/3 of the angle in next circle.
-
-                targetX=nextRadius * Math.cos(oneThirdAngle);
-                targetY =nextRadius * Math.sin(oneThirdAngle);
-
-
             }else{
                 targetX= x+radDiff/Math.sqrt(1+Math.pow(slope,2));
                 targetY = y+radDiff*slope/Math.sqrt(1+Math.pow(slope,2));
@@ -217,9 +222,10 @@ public class Robot implements Runnable {
     }
 
     public void setActive(boolean active) {
-        if(active = false){
+        if(!active){
             this.active = active;
             isObstacle = false;
+            needCompute = true;
         }else {
             this.active = active;
         }
@@ -279,7 +285,16 @@ public class Robot implements Runnable {
     public int getRobotID(){
         return this.robotID;
     }
+    public void setRobotsOnCircle(List<Robot> robotsOnCircle) {
+        for(Robot robot: robotsOnCircle){
+            Robot robot1 = robot.deepCopy();
+            this.robotsOnCircle.add(robot1);
+        }
+    }
 
+    public Robot deepCopy() {
+        return new Robot(this.x, this.y, this.robotID, this.pivot, this.speed, this.group , this.environment);
+    }
 
     @Override
     public String toString() {
