@@ -32,6 +32,8 @@ public class Robot implements Runnable {
     private Robot collisionRobot;//collision, need to change angle
     private Robot adjacentRobot;// adjacent with collisionRobot
     private boolean needCompute;
+    private  double centerX;
+    private  double centerY;
 
     private List<Robot> robotsOnCircle;
     public Robot(double x, double y, int robotID,boolean pivot, double speed, String group, Environment environment) {
@@ -61,6 +63,8 @@ public class Robot implements Runnable {
 
     public void compute(){
         this.panel = RobotSimulation.panel;
+        centerX= panel.getWidth()/2;
+        centerY= panel.getHeight()/2;
         circles=environment.getCircleList();
         innerSide=circles.get(0);
         if(circles.size()>1) {
@@ -78,7 +82,7 @@ public class Robot implements Runnable {
             targetX = panel.getWidth() / 2.0;
             targetY = panel.getHeight() / 2.0;
         } else {// "circle" group
-            double slope = (this.y - panel.getHeight() / 2) /(this.x- panel.getWidth() / 2);
+            double slope = (this.y - centerY) /(this.x- centerX);
 
             double radDiff =nextCircle.getCircleRadius()-circle.getCircleRadius();
 
@@ -131,8 +135,8 @@ public class Robot implements Runnable {
                         }
                         // Calculate the angle between adjacent robot(A) and  collision robot(C) with respect to the center
 
-                        double angleAC = Math.atan2(y - panel.getHeight() / 2, x - panel.getWidth() / 2)
-                                - Math.atan2(adjacentRobot.y - panel.getHeight() / 2, adjacentRobot.x - panel.getWidth() / 2);
+                        double angleAC = Math.atan2(y - centerY, x - centerX)
+                                - Math.atan2(adjacentRobot.y - centerY, adjacentRobot.x - centerX);
                         // ensure angle is positive
                         if (angleAC < 0) {
                             angleAC += 2 * Math.PI;
