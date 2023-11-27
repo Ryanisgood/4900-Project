@@ -10,7 +10,7 @@ public class RobotSimulation extends JFrame {
     public ThreadPoolExecutor robotsPoolExecutor;
     public static final int WINDOW_WITH = 800;//初始窗口宽度
     public static final int WINDOW_HEIGHT = 600;//初始窗口高度
-    private RobotScheduler scheduler;
+
 
     private java.util.List<Robot> robots;
     public RobotSimulation() {
@@ -20,11 +20,7 @@ public class RobotSimulation extends JFrame {
         robots = environment.getRobots();
         //启动机器人
         robotsPoolExecutor =new ScheduledThreadPoolExecutor(100);
-        //environment.getRobots().forEach(Robot::start);
         bootRobots();
-        //启动机器人调度器
-        //scheduler = new RobotScheduler(environment);
-        //environment.getRobots().forEach(scheduler::start);
     }
 
 

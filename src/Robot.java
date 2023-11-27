@@ -30,7 +30,6 @@ public class Robot implements Runnable {
 
     double targetX;
     double targetY;
-    int start = 0;
     private Robot collisionRobot;//collision, need to change angle
     private Robot adjacentRobot;// adjacent with collisionRobot
     private boolean needCompute;
@@ -65,6 +64,7 @@ public class Robot implements Runnable {
         this.panel = RobotSimulation.panel;
         circles=environment.getCircleList();
         innerSide=circles.get(0);
+        int tmp = robotID;
         if(circles.size()>1) {
             nextCircle = circles.get(1);
         }
@@ -87,7 +87,7 @@ public class Robot implements Runnable {
                 targetY = y + radDiff * slope / Math.sqrt(1 + Math.pow(slope, 2));
                 //Detect Collision
                 for (Robot robotOnC2 : nextCircle.getRobots()) {
-                    if ((Math.abs(robotOnC2.y - targetY) < 50) || (Math.abs(robotOnC2.x - targetX) < 50)) {
+                    if ((Math.abs(robotOnC2.y - targetY) < 2.5) || (Math.abs(robotOnC2.x - targetX) < 2.5)) {
                         isObstacle = true;
                         break;
                     }
@@ -117,6 +117,7 @@ public class Robot implements Runnable {
                                 }
                             }
                             // Calculate the angle between adjacent robot(A) and  collision robot(C) with respect to the center
+
                             double angleAC = Math.atan2(y - panel.getHeight() / 2, x - panel.getWidth() / 2)
                                     - Math.atan2(adjacentRobot.y - panel.getHeight() / 2, adjacentRobot.x - panel.getWidth() / 2);
                             // ensure angle is positive
@@ -133,6 +134,7 @@ public class Robot implements Runnable {
                         targetY = nextRadius * Math.sin(oneThirdAngle);
                         needCompute = false;
                     }
+                    robotID = 9999;
             }else{
                 targetX= x+radDiff/Math.sqrt(1+Math.pow(slope,2));
                 targetY = y+radDiff*slope/Math.sqrt(1+Math.pow(slope,2));
@@ -178,9 +180,7 @@ public class Robot implements Runnable {
         if(!circle.equals(innerSide)){return;}
         if (!active) return; // 如果机器人处于非激活状态，则不移动
         // 根据角度和速度更新位置
-
         robots = circle.getRobots();
-
         if(group.equals("gathering") && this.distanceToOrigin() > 30){
             x += 3* speed * Math.cos(angle);
             y += 3* speed * Math.sin(angle);
@@ -192,13 +192,12 @@ public class Robot implements Runnable {
         if(!circle.isInScope(this.distanceToOrigin())){
             robots.remove(this);
         }
-
     }
 
     public void draw(Graphics g) {
         if ("gathering".equals(group)) {
             g.setColor(Color.BLUE);
-        } else if (robotID == 999 || robotID == 998) {
+        } else if (robotID == 9999 || robotID == 9988) {
             g.setColor(Color.green);
         } else {
             g.setColor(Color.RED);

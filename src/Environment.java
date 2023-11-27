@@ -119,6 +119,7 @@ public class Environment {
             }
         }
         setToPivot(circleList);
+        //reductionPhase(true, circleList);
     }
 
     public void update(int width, int height) {
@@ -144,8 +145,6 @@ public class Environment {
             if(robot.getCircle() != null && robot.getCircle().equals(innerSide)){ //检查机器人状态
                 System.out.println(robot +"  "+ robot.getCircle().equals(innerSide));
             }
-
-
         }
     }
 
@@ -272,37 +271,24 @@ public class Environment {
                 Circle inner = circlesList.get(lastID - 1);
                 List<Robot> robotList = outermost.getRobots();
                 if (outermost.getRobotCount() > 4) {
+                    System.out.println("fuschihcihaiusdf");
                     for (Robot robot : robotList) {
                         if (!robot.getPivot()) {
                             //move 1/2 distance
-                            double distance = outermost.getCircleRadius() - inner.getCircleRadius();
+                            double distance = 0.5 * (outermost.getCircleRadius() - inner.getCircleRadius());
                             double slope = robot.getY() / robot.getX();
-                            double targetX = 0.5 * Math.sqrt(Math.pow(distance, 2) / (1 + Math.pow(slope, 2)));
-                            double targetY = 0.5 * (-slope * targetX);
+                            double targetX =  Math.sqrt(Math.pow(distance, 2) / (1 + Math.pow(slope, 2)));
+                            double targetY =distance * slope/Math.sqrt(1+Math.pow(slope,2));;
 
                             double x = robot.getX();
                             double y = robot.getY();
 
-                            if (x < (double) panel.getWidth() / 2) {
-                                x += targetX;
-                                if (y > (double) panel.getHeight() / 2) {
-                                    y -= targetY;
-                                } else {
-                                    y += targetY;
-                                }
-                            } else if (x > (double) panel.getWidth() / 2) {
-                                x -= targetX;
-                                if (y > (double) panel.getHeight() / 2) {
-                                    y -= targetY;
-                                } else {
-                                    y += targetY;
-                                }
-                            }
-                            robot.setX(x);
+                            x-=targetX;
+                            y-=targetY;
+                             robot.setX(x);
                             robot.setY(y);
                             robotList.remove(robot);
                         }
-                        //没有写1/2 distance
                     }
                 }
 
@@ -345,7 +331,7 @@ public class Environment {
     public boolean distanceBetweenRobot(Robot robot){ //used to keep the distance between each circles
         double distance = robot.distanceToOrigin();
         for(Robot robot1: robots){
-            if(Math.abs(distance - robot1.distanceToOrigin()) < 15 && Math.abs(distance - robot1.distanceToOrigin()) > 1.5 ){
+            if(Math.abs(distance - robot1.distanceToOrigin()) < 20 && Math.abs(distance - robot1.distanceToOrigin()) > 1.5 ){
                 return false;
             }
         }
