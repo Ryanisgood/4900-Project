@@ -66,34 +66,46 @@ public class Robot implements Runnable {
         if(circles.size()>1) {
             nextCircle = circles.get(1);
         }
+
         if (circle == null) return;
         if (!active) return; // 如果机器人处于非激活状态，则不移动
         //Formation Phrase
         //the innermost circle
         if(!circle.equals(innerSide)){return;}
-        double radDiff =nextCircle.getCircleRadius()-innerSide.getCircleRadius();
+
         // 计算目标点
         if ("gathering".equals(group)) {
             targetX = panel.getWidth() / 2.0;
             targetY = panel.getHeight() / 2.0;
-        }
+        } else {// "circle" group
+            double slope = (this.y - panel.getHeight() / 2) /(this.x- panel.getWidth() / 2);
 
-        else {// "circle" group
-            double slope = (y - panel.getHeight() / 2) /x- panel.getWidth() / 2;
-            double upperSlope =(y+2.5 - panel.getHeight() / 2) / (x-panel.getWidth() / 2);
-            double lowerSlope =(y-2.5 - panel.getHeight() / 2) / (x-panel.getWidth() / 2);
-            if(!isObstacle) {
-                targetX = x + radDiff / Math.sqrt(1 + Math.pow(slope, 2));
-                targetY = y + radDiff * slope / Math.sqrt(1 + Math.pow(slope, 2));
-                //Detect Collision
-                for (Robot robotOnC2 : nextCircle.getRobots()) {
-                    double robotC2Slope = (robotOnC2.y - panel.getHeight() / 2) / (robotOnC2.x-panel.getWidth() / 2);
-                    if (Math.abs(robotC2Slope)<=Math.abs(upperSlope)&&Math.abs(robotC2Slope)>=Math.abs(lowerSlope)) {
-                        this.isObstacle = true;
-                        break;
-                    }
+            double radDiff =nextCircle.getCircleRadius()-circle.getCircleRadius();
+
+
+            targetX = x + radDiff / Math.sqrt(1 + Math.pow(slope, 2));
+            targetY = y + (radDiff * slope) / Math.sqrt(1 + Math.pow(slope, 2));
+           /* double upperSlope =(y+5 - panel.getHeight() / 2) / (x-panel.getWidth() / 2);
+            double lowerSlope =(y-5 - panel.getHeight() / 2) / (x-panel.getWidth() / 2);
+
+            //if ((Math.abs(robotC2Slope)<=Math.abs(upperSlope))&&(Math.abs(robotC2Slope)>=Math.abs(lowerSlope))){*/
+            //Detect Collision
+            List<Robot> c2Robots =nextCircle.getRobots();
+            for (Robot robotOnC2 : c2Robots) {
+                double targetRange=Math.sqrt(Math.pow(robotOnC2.x-targetX,2)+Math.pow(robotOnC2.y-targetY,2));
+                if (Math.abs(targetRange)<6) {
+                    this.isObstacle = true;
+                    break;
                 }
+
+
+
             }
+
+
+
+
+
             // if collision, find one of the two adjective angles
             if(isObstacle) {
                 if(needCompute) {
@@ -134,10 +146,12 @@ public class Robot implements Runnable {
                     targetX = nextRadius * Math.cos(oneThirdAngle);
                     targetY = nextRadius * Math.sin(oneThirdAngle);
                     needCompute = false;
+                    isObstacle=false;
                 }
             }else{
                 targetX= x+radDiff/Math.sqrt(1+Math.pow(slope,2));
                 targetY = y+radDiff*slope/Math.sqrt(1+Math.pow(slope,2));
+
 
             }
             angle =Math.atan2(targetY - panel.getHeight()/2, targetX - panel.getWidth()/2);
@@ -223,7 +237,7 @@ public class Robot implements Runnable {
     public void setActive(boolean active) {
         if(!active){
             this.active = active;
-            isObstacle = false;
+            this.isObstacle = false;
             needCompute = true;
         }else {
             this.active = active;
