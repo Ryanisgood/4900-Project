@@ -64,7 +64,6 @@ public class Robot implements Runnable {
         this.panel = RobotSimulation.panel;
         circles=environment.getCircleList();
         innerSide=circles.get(0);
-        int tmp = robotID;
         if(circles.size()>1) {
             nextCircle = circles.get(1);
         }
@@ -134,7 +133,6 @@ public class Robot implements Runnable {
                         targetY = nextRadius * Math.sin(oneThirdAngle);
                         needCompute = false;
                     }
-                    robotID = 9999;
             }else{
                 targetX= x+radDiff/Math.sqrt(1+Math.pow(slope,2));
                 targetY = y+radDiff*slope/Math.sqrt(1+Math.pow(slope,2));
@@ -197,7 +195,7 @@ public class Robot implements Runnable {
     public void draw(Graphics g) {
         if ("gathering".equals(group)) {
             g.setColor(Color.BLUE);
-        } else if (robotID == 9999 || robotID == 9988) {
+        } else if (isObstacle) {
             g.setColor(Color.green);
         } else {
             g.setColor(Color.RED);
