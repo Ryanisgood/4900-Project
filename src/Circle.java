@@ -3,10 +3,10 @@ import java.util.ArrayList;
 import java.awt.*;
 
 public class Circle {
-    private double circleRadius; // 半径
-    private boolean active; // 是否激活
-    private static final int ROBOT_SIZE = 5; //代表机器人的圆点尺寸
-    private List<Robot> robots; //环境中的机器人
+    private double circleRadius; // Radius
+    private boolean active; // Whether it is active
+    private static final int ROBOT_SIZE = 5; // Represents the size of the robot dot
+    private List<Robot> robots; // Robots in the environment
 
     public Circle(double circleRadius) {
         this.circleRadius = circleRadius; 

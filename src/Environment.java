@@ -1,4 +1,8 @@
 
+/**
+ * The Environment class represents the environment in which the robots operate.
+ * It contains a list of robots, a list of circles, and other properties related to the environment.
+ */
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -6,7 +10,9 @@ import java.util.List;
 
 public class Environment {
     private final List<Robot> robots;
+
     private final List<Circle> circleList;
+
 
     private Circle outside;
 
@@ -98,7 +104,7 @@ public class Environment {
         return false;
     }
     private void initCircles() {
-        //获取所有的要绘制圆圈的半径
+        // Get the radius of all circles to be drawn
         //根据半径生成圆圈
         for (Robot robot : robots) {
             double distance = robot.distanceToOrigin();
@@ -123,26 +129,25 @@ public class Environment {
     }
 
     public void update(int width, int height) {
-        // 更新所有机器人的状态
+        // Update the state of all robots
         for (Robot robot : robots) {
             if (nextCircle.isInScope(robot.distanceToOrigin()) && robot.getGroup().equals("circle")) {
                 if(robot.isActive()) {
                     robot.setActive(false);
                 }
-                robot.setCircle(nextCircle);//不在circle上了,下一个circle设置为当前机器人circle
+                robot.setCircle(nextCircle); // If not on the circle anymore, set the next circle as the current robot's circle
                 if(!nextCircle.getRobots().contains(robot)) {
                     nextCircle.addRobot(robot);
                 }
                 rebootRobot();
-            }else
-            if(robot.getGroup().equals("gathering") && robot.distanceToOrigin() < 3){
+            } else if(robot.getGroup().equals("gathering") && robot.distanceToOrigin() < 3){
                 if(robot.isActive()) {
                     robot.setActive(false);
                 }
-                robot.setCircle(null);//不在circle上了
+                robot.setCircle(null); // If not on the circle anymore
                 rebootRobot();
             }
-            if(robot.getCircle() != null && robot.getCircle().equals(innerSide)){ //检查机器人状态
+            if(robot.getCircle() != null && robot.getCircle().equals(innerSide)){ // Check the robot's state
                 System.out.println(robot +"  "+ robot.getCircle().equals(innerSide));
             }
         }
@@ -255,12 +260,11 @@ public class Environment {
         if (multiplicityPoint) {
             if (circlesList.size() == 1) {
                 Circle outermost = circlesList.get(0);
-                List<Robot> robotList = outermost.getRobots(); //判断是否在最外层圆上
+                List<Robot> robotList = outermost.getRobots(); // Check if it is on the outermost circle
                 if (outermost.getRobotCount() > 4) {
                     for (Robot robot : robotList) {
                         if (robot.getPivot() == false) {
                             robot.move();
-                            //不在圈上
                             robotList.remove(robot);
                         }
                     }
@@ -305,7 +309,7 @@ public class Environment {
             if(circleList.size()>1) {
                 nextCircle = circleList.get(1);
             }
-            for(Robot robot1 : robots){ //遍历机器人，如果他们全都完成了自己的任务，激活下一圈上的机器人
+            for(Robot robot1 : robots){ // Traverse through the robots, activate the robots on the next circle if they have completed their tasks
                 robot1.setInnerSide(circleList.get(0));
                 if(robot1.getCircle() !=null && robot1.getCircle().equals(innerSide)){
                     if(robot1.getGroup().equals("circle") && robot1.getCircle().equals(outside)){

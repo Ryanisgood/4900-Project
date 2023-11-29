@@ -8,8 +8,8 @@ public class RobotSimulation extends JFrame {
     private final Environment environment;
 
     public ThreadPoolExecutor robotsPoolExecutor;
-    public static final int WINDOW_WITH = 800;//初始窗口宽度
-    public static final int WINDOW_HEIGHT = 600;//初始窗口高度
+    public static final int WINDOW_WITH = 800;
+    public static final int WINDOW_HEIGHT = 600;
 
 
     private java.util.List<Robot> robots;
@@ -18,7 +18,7 @@ public class RobotSimulation extends JFrame {
         panel = new SimulationPanel();
         initUI();
         robots = environment.getRobots();
-        //启动机器人
+        //boot the robots
         robotsPoolExecutor =new ScheduledThreadPoolExecutor(100);
         bootRobots();
     }
@@ -40,10 +40,10 @@ public class RobotSimulation extends JFrame {
     }
 
     private void setUpTimer() {
-        new Timer(10, e -> { // 减少定时器延迟以增加刷新率
+        new Timer(10, e -> {
             environment.update(panel.getWidth(), panel.getHeight());
             int activeThreads = Thread.activeCount();
-            System.out.println("当前活动的线程数: " + activeThreads);
+            System.out.println("activeThreads: " + activeThreads);
             panel.repaint();
         }).start();
     }
