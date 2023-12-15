@@ -113,8 +113,8 @@ public class Robot implements Runnable {
                     // and find the min diff,so they are adjective
                     double minDiff = Integer.MAX_VALUE;
                     double oneThirdAngle = 0;
-                    if (robotsOnCircle.size() > 1) {
-                        for (Robot robot : robotsOnCircle) {
+                    if (circle.getRobots().size() > 1) {
+                        for (Robot robot : circle.getRobots()) {
                             if (!robot.equals(this)) {
                                 adjacentRobot = robot;
                                 double difference = Math.sqrt(Math.pow(Math.abs(robot.x - x), 2)
@@ -133,7 +133,7 @@ public class Robot implements Runnable {
                         System.out.println("The positional data of adjacent Robot: "+adjacentRobot);
                         // ensure angle is positive
                         if (angleAC < 0) {
-                            angleAC += 2 * Math.PI;
+                            angleAC =Math.abs(angleAC);
                         }
                         // 1/3 of the angle
                         oneThirdAngle = angleAC / 3.0;
