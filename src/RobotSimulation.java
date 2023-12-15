@@ -11,6 +11,17 @@ public class RobotSimulation extends JFrame {
     public static final int WINDOW_WITH = 800;
     public static final int WINDOW_HEIGHT = 600;
 
+    static long startTime;
+
+    public static void setTmp(long tmp) {
+        RobotSimulation.tmp = tmp;
+    }
+
+    static long tmp;
+    public static long getTmp() {
+        return tmp;
+    }
+
 
     private java.util.List<Robot> robots;
     public RobotSimulation() {
@@ -20,10 +31,14 @@ public class RobotSimulation extends JFrame {
         robots = environment.getRobots();
         //boot the robots
         robotsPoolExecutor =new ScheduledThreadPoolExecutor(100);
+        startTime = System.currentTimeMillis();
+        tmp = 0;
         bootRobots();
     }
 
-
+    public static long getStartTime() {
+        return startTime;
+    }
 
     private void bootRobots() {
         for (Robot robot : robots) {
@@ -43,7 +58,7 @@ public class RobotSimulation extends JFrame {
         new Timer(10, e -> {
             environment.update(panel.getWidth(), panel.getHeight());
             int activeThreads = Thread.activeCount();
-            System.out.println("activeThreads: " + activeThreads);
+            //System.out.println("activeThreads: " + activeThreads);
             panel.repaint();
         }).start();
     }
@@ -103,8 +118,9 @@ public class RobotSimulation extends JFrame {
 
         }
     }
-    
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> new RobotSimulation().setVisible(true));
     }
+
+
 }

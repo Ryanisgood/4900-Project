@@ -58,7 +58,6 @@ public class Robot implements Runnable {
     public void look(){
         // Observe all robots
         robots = environment.getRobots();
-
         // Record data
     }
 
@@ -85,15 +84,11 @@ public class Robot implements Runnable {
             targetY = panel.getHeight() / 2.0;
         } else {// "circle" group
             double slope = (this.y - centerY) /(this.x- centerX);
-
             double radDiff =nextCircle.getCircleRadius()-circle.getCircleRadius();
-
-
             targetX = x + radDiff / Math.sqrt(1 + Math.pow(slope, 2));
             targetY = y + (radDiff * slope) / Math.sqrt(1 + Math.pow(slope, 2));
            /* double upperSlope =(y+5 - panel.getHeight() / 2) / (x-panel.getWidth() / 2);
             double lowerSlope =(y-5 - panel.getHeight() / 2) / (x-panel.getWidth() / 2);
-
             //if ((Math.abs(robotC2Slope)<=Math.abs(upperSlope))&&(Math.abs(robotC2Slope)>=Math.abs(lowerSlope))){*/
             //Detect Collision
             List<Robot> c2Robots =nextCircle.getRobots();
@@ -111,7 +106,7 @@ public class Robot implements Runnable {
             // if collision, find one of the two adjective angles
             if(isObstacle) {
                 if(needCompute) {
-                    System.out.println("Detect collision " + robotID);
+                    System.out.println("Detect collision "+ this);
                     //Detect Collision
                     double nextRadius = nextCircle.getCircleRadius();
                     // compute the difference of all robots with collisionRobot in the circle
@@ -119,9 +114,9 @@ public class Robot implements Runnable {
                     double minDiff = Integer.MAX_VALUE;
                     double oneThirdAngle = 0;
                     if (robotsOnCircle.size() > 1) {
-                        adjacentRobot = robotsOnCircle.get(0);
                         for (Robot robot : robotsOnCircle) {
                             if (!robot.equals(this)) {
+                                adjacentRobot = robot;
                                 double difference = Math.sqrt(Math.pow(Math.abs(robot.x - x), 2)
                                         + Math.pow(Math.abs(robot.y - y), 2));
                                 if (difference < minDiff) {
@@ -135,6 +130,7 @@ public class Robot implements Runnable {
 
                         double angleAC = Math.atan2(y - centerY, x - centerX)
                                 - Math.atan2(adjacentRobot.y - centerY, adjacentRobot.x - centerX);
+                        System.out.println("The positional data of adjacent Robot: "+adjacentRobot);
                         // ensure angle is positive
                         if (angleAC < 0) {
                             angleAC += 2 * Math.PI;
@@ -147,14 +143,14 @@ public class Robot implements Runnable {
                     // Calculate the new coordinate for collision robot at 1/3 of the angle in next circle.
                     targetX = nextRadius * Math.cos(oneThirdAngle);
                     targetY = nextRadius * Math.sin(oneThirdAngle);
+                    System.out.println("Target on next circle:( "+targetX + "，  "+ targetY +" )");
+                    System.out.println("Radius "+ nextRadius);
                     needCompute = false;
                     isObstacle=false;
                 }
             }else{
-                targetX= x+radDiff/Math.sqrt(1+Math.pow(slope,2));
-                targetY = y+radDiff*slope/Math.sqrt(1+Math.pow(slope,2));
-
-
+                targetX= x + radDiff/Math.sqrt(1+Math.pow(slope,2));
+                targetY = y + radDiff*slope/Math.sqrt(1+Math.pow(slope,2));
             }
             angle =Math.atan2(targetY - panel.getHeight()/2, targetX - panel.getWidth()/2);
         }

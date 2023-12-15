@@ -77,7 +77,7 @@ public class Environment {
     private void initRobots() {
 
         int counter = 0;
-        while (robots.size() < 100){
+        while (robots.size() < 50){
             String group = counter % 2 == 0 ? "gathering" : "circle";
             double x = Math.random() * 400;
             double y = Math.random() * 400;
@@ -147,9 +147,12 @@ public class Environment {
                 robot.setCircle(null); // If not on the circle anymore
                 rebootRobot();
             }
+            /*
             if(robot.getCircle() != null && robot.getCircle().equals(innerSide)){ // Check the robot's state
                 System.out.println(robot +"  "+ robot.getCircle().equals(innerSide));
             }
+
+             */
         }
     }
 
@@ -275,7 +278,6 @@ public class Environment {
                 Circle inner = circlesList.get(lastID - 1);
                 List<Robot> robotList = outermost.getRobots();
                 if (outermost.getRobotCount() > 4) {
-                    System.out.println("fuschihcihaiusdf");
                     for (Robot robot : robotList) {
                         if (!robot.getPivot()) {
                             //move 1/2 distance
@@ -302,6 +304,7 @@ public class Environment {
     }
 
     public void rebootRobot(){
+        boolean print = false;
         if(!hasRobot(innerSide) && checkActive()){
             innerSide.setActive(false);
             circleList.remove(0);
@@ -313,6 +316,15 @@ public class Environment {
                 robot1.setInnerSide(circleList.get(0));
                 if(robot1.getCircle() !=null && robot1.getCircle().equals(innerSide)){
                     if(robot1.getGroup().equals("circle") && robot1.getCircle().equals(outside)){
+                        if(checkActive()){
+
+                            long circleTime = System.currentTimeMillis();
+                            long duration = circleTime - RobotSimulation.getStartTime();
+                            if(!print) {
+                                System.out.println("Finish with running time: " + duration  + " millisecond");
+                                print = true;
+                            }
+                        }
                         continue;
                     }
                     robot1.setRobotsOnCircle(innerSide.getRobots());
