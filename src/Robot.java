@@ -87,9 +87,7 @@ public class Robot implements Runnable {
             double radDiff =nextCircle.getCircleRadius()-circle.getCircleRadius();
             targetX = x + radDiff / Math.sqrt(1 + Math.pow(slope, 2));
             targetY = y + (radDiff * slope) / Math.sqrt(1 + Math.pow(slope, 2));
-           /* double upperSlope =(y+5 - panel.getHeight() / 2) / (x-panel.getWidth() / 2);
-            double lowerSlope =(y-5 - panel.getHeight() / 2) / (x-panel.getWidth() / 2);
-            //if ((Math.abs(robotC2Slope)<=Math.abs(upperSlope))&&(Math.abs(robotC2Slope)>=Math.abs(lowerSlope))){*/
+        
             //Detect Collision
             List<Robot> c2Robots =nextCircle.getRobots();
             for (Robot robotOnC2 : c2Robots) {
